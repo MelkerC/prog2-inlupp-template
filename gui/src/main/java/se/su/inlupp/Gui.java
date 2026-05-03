@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.control.*;
 
 public class Gui extends Application {
 
@@ -16,9 +17,10 @@ public class Gui extends Application {
     Label label =
         new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
 
-    VBox root = new VBox(30, label);
+    Button button = new Button("Press me");
+    VBox root = new VBox(3, label, button);
     root.setAlignment(Pos.CENTER);
-    Scene scene = new Scene(root, 640, 480);
+    Scene scene = new Scene(root, 640, 900);
     stage.setScene(scene);
     stage.show();
   }
