@@ -5,11 +5,18 @@ import javafx.collections.ObservableList;
 
 public class GraphEdge<T> implements Edge<T>{
 
+    private T destination;
+    private String name;
     private int weight;
 
+    public GraphEdge(T destination, String name, int weight){
+        this.destination = destination;
+        this.name = name;
+        this.weight = weight;
+    }
     @Override
     public T getDestination(){
-        return null; //Prelliminär siffra för kompelering
+        return destination;
     }
 
     @Override
@@ -27,7 +34,7 @@ public class GraphEdge<T> implements Edge<T>{
 
     @Override
     public String getName(){
-        return null;//Prelliminär siffra för kompelering
+        return name;
     }
 
     @Override
