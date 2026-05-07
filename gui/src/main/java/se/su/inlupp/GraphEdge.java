@@ -39,6 +39,6 @@ public class GraphEdge<T> implements Edge<T>{
 
     @Override
     public String toString(){
-        return getName();
+        return String.format("%s -> %s", getName(), getWeight(), getDestination().toString()); //formatera snyggt
     }
 }

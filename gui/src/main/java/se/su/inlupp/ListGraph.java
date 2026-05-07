@@ -83,4 +83,8 @@ public class ListGraph <T> implements Graph<T>{
         }
         return null;
     }
+
+    public String toString(){
+        return graph.toString();
+    }
 }
