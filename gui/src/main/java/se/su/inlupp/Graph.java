@@ -11,7 +11,7 @@ public interface Graph <T> extends Iterable<T>{
 
     boolean hasNode(T node);
 
-    void connect(T node1, T node2, String name, int weight);
+    void connect(T node1, T node2, String name, int weight, int time);
 
     void disconnect(T node1, T node2);
 

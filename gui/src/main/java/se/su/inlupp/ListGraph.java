@@ -34,31 +34,28 @@ public class ListGraph <T> implements Graph<T>{
     }
 
     @Override
-    public void connect(T node1, T node2, String name, int weight) {
+    public void connect(T node1, T node2, String name, int weight, int time) {
         this.add(node1);
         this.add(node2);
 
         Set<Edge<T>> edgesNode1 = graph.get(node1);
-        Set<Edge<T>> edgesNode2 = graph.get(node2);
 
-        edgesNode1.add(new GraphEdge<>(node2, name, weight));
-        edgesNode2.add(new GraphEdge<>(node1, name, weight));
+        edgesNode1.add(new TrainRail<>(node2, name, weight, time));
     }
 
     @Override
     public void disconnect(T node1, T node2) {
         if(hasNode(node1) && hasNode(node2) && getEdgeBetween(node1, node2) != null){
             graph.get(node1).remove(getEdgeBetween(node1, node2));
-            graph.get(node2).remove(getEdgeBetween(node2, node1));
         }else{
             throw new NoSuchElementException("At least node or node is not connected");
         }
     }
 
     @Override
-    public void setConnectionWeight(T node1, T node2, int weight) {
+    public void setConnectionWeight(T node1, T node2, int distance) {
         if(hasNode(node1) && hasNode(node2) && getEdgeBetween(node1, node2) != null){
-            getEdgeBetween(node1, node2).setWeight(weight);
+            getEdgeBetween(node1, node2).setWeight(distance);
         }else{
             throw new NoSuchElementException("At least node or node is not connected");
         }

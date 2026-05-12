@@ -6,19 +6,20 @@ public class TestProgram {
 
         PathFinder<City> cityPathFinder = new DFSPathFinder<>();
 
-        City london = new City("London");
-        City newYork = new City("New York");
+        City malmo = new City("Malmö");
+        City gbg = new City("Göteborg");
+        City sthlm = new City("Stockholm");
+        City oslo = new City("Oslo");
 
-        cities.add(london);
-        cities.add(newYork);
+        cities.add(malmo);
+        cities.add(gbg);
 
-        cities.connect(london, newYork, "Silk road", 69);
+        cities.connect(malmo, gbg, "Silk road", 69, 69);
+        cities.connect(gbg, sthlm, "Enått", 2, 3);
 
         //GraphPath<City> path = new GraphPath<>(cityPathFinder.findPath(cities, london, newYork));
 
-        //System.out.println(path);
-
-
+        System.out.println(cities);
     }
 
 

@@ -16,7 +16,7 @@ public class DFSPathFinder <T> implements PathFinder<T>{
             path.addFirst(edge);
             current = next;
         }
-        return new GraphPath<>();
+        return new GraphPath<>();// tom
     }
 
     private void connect(T to, T from, Map<T, T> connections, Graph<T> graph) {
