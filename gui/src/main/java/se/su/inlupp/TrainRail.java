@@ -4,13 +4,12 @@ public class TrainRail<T> implements Edge<T>{
 
     private final T destination;
     private final String name;
-    private int weight, time;
+    private int weight;
 
-    public TrainRail(T destination, String name, int weight, int time){
+    public TrainRail(T destination, String name, int weight){
         this.destination = destination;
         this.name = name;
         this.weight = weight;
-        this.time = time;
     }
     @Override
     public T getDestination(){
@@ -22,21 +21,12 @@ public class TrainRail<T> implements Edge<T>{
         return weight;
     }
 
-    public int getTime(){return time;}
-
     @Override
     public void setWeight(int weight){
         if(weight < 0){
             throw new IllegalArgumentException("weight must be greater than 0");
         }
         this.weight = weight;
-    }
-
-    public void setTime(int time){
-        if(time < 0){
-            throw new IllegalArgumentException("time must be greater than 0");
-        }
-        this.time = time;
     }
 
     @Override
@@ -46,6 +36,6 @@ public class TrainRail<T> implements Edge<T>{
 
     @Override
     public String toString(){
-        return String.format("%s goes to %s and is %d km long and has a travel time of %d minutes\n", name, destination.toString(), weight, time);
+        return String.format("%s goes to %s and is %d km long\n", name, destination.toString(), weight);
     }
 }

@@ -8,15 +8,24 @@ public class DFSPathFinder <T> implements PathFinder<T>{
         Map<T, T> connections = new HashMap<>();
         connect(from, null, connections, graph);
         LinkedList<Edge<T>> path = new LinkedList<>();
-
         T current = to;
+
         while (current != null && !current.equals(from)){
             T next = connections.get(current);
             Edge<T> edge = graph.getEdgeBetween(current, next);
             path.addFirst(edge);
             current = next;
         }
-        return new GraphPath<>();// tom
+
+        LinkedList<T> newPath = new LinkedList<>();
+
+        for(Edge<T> edge: path){
+            newPath.add(edge.getDestination());
+        }
+
+        newPath.addLast(to);
+
+        return new GraphPath<>(newPath, path);
     }
 
     private void connect(T to, T from, Map<T, T> connections, Graph<T> graph) {

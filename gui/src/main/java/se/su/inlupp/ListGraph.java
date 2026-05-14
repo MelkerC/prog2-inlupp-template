@@ -12,64 +12,59 @@ public class ListGraph <T> implements Graph<T>{
     }
 
     @Override
-    public final void add(T node) {
-    graph.putIfAbsent(node, new HashSet<>());
-    }
+    public final void add(T node) {graph.putIfAbsent(node, new HashSet<>());}
 
     @Override
-    public void remove(T node) { //kolla på denna ifall alla edges behöver tar bort
+    public void remove(T node) {
         if(hasNode(node)){
-            for(Edge<T> edge: graph.get(node)){
+            for(Edge<T> edge: new ArrayList<>(getEdgesFrom(node))){
                 disconnect(node, edge.getDestination());
             }
             graph.remove(node);
         }else{
-            throw new NoSuchElementException("At least node or node is not connected");
+            throw new NoSuchElementException("At least one node is not connected");
         }
     }
 
     @Override
-    public boolean hasNode(T node) {
-        return graph.containsKey(node);
-    }
+    public boolean hasNode(T node) {return graph.containsKey(node);}
 
     @Override
-    public void connect(T node1, T node2, String name, int weight, int time) {
+    public void connect(T node1, T node2, String name, int weight) {
         this.add(node1);
         this.add(node2);
 
         Set<Edge<T>> edgesNode1 = graph.get(node1);
+        Set<Edge<T>> edgesNode2 = graph.get(node2);
 
-        edgesNode1.add(new TrainRail<>(node2, name, weight, time));
+        edgesNode1.add(new TrainRail<>(node2, name, weight));
+        edgesNode2.add(new TrainRail<>(node1, name, weight));
     }
 
     @Override
     public void disconnect(T node1, T node2) {
+        if(!hasNode(node1) || !hasNode(node2)){
+            throw new NoSuchElementException("At least one node is not connected");
+        }
+        graph.get(node1).remove(getEdgeBetween(node1, node2));
+        graph.get(node2).remove(getEdgeBetween(node2, node1));
+    }
+
+    @Override
+    public void setConnectionWeight(T node1, T node2, int weight) {
         if(hasNode(node1) && hasNode(node2) && getEdgeBetween(node1, node2) != null){
-            graph.get(node1).remove(getEdgeBetween(node1, node2));
+            getEdgeBetween(node1, node2).setWeight(weight);
+            getEdgeBetween(node2, node1).setWeight(weight);
         }else{
             throw new NoSuchElementException("At least node or node is not connected");
         }
     }
 
     @Override
-    public void setConnectionWeight(T node1, T node2, int distance) {
-        if(hasNode(node1) && hasNode(node2) && getEdgeBetween(node1, node2) != null){
-            getEdgeBetween(node1, node2).setWeight(distance);
-        }else{
-            throw new NoSuchElementException("At least node or node is not connected");
-        }
-    }
+    public Set<T> getNodes() {return graph.keySet();}
 
     @Override
-    public Set<T> getNodes() {
-        return graph.keySet();
-    }
-
-    @Override
-    public Collection<Edge<T>> getEdgesFrom(T node) {
-        return graph.get(node);
-    }
+    public Collection<Edge<T>> getEdgesFrom(T node) {return graph.get(node);}
 
     @Override
     public Edge<T> getEdgeBetween(T node1, T node2) {
@@ -81,7 +76,25 @@ public class ListGraph <T> implements Graph<T>{
         return null;
     }
 
-    public String toString(){
-        return graph.toString();
+    public boolean hasPath(T node1, T node2){
+        Set<T> visited = new HashSet<>();
+
+        if(getEdgesFrom(node1) == null || getEdgesFrom(node2) == null){return false;}
+
+        visit(node1, visited);
+        return visited.contains(node2);
     }
+
+    private void visit(T current, Set<T> visited){
+        visited.add(current);
+        if(graph.get(current).isEmpty()){return;}
+        for(Edge<T> edge: graph.get(current)){
+            T destination = edge.getDestination();
+            if(!visited.contains(destination)){
+                visit(destination, visited);
+            }
+        }
+    }
+
+    public String toString(){return graph.toString();}
 }

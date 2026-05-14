@@ -25,6 +25,4 @@ public class City {
             return String.format("%s (Not Visited)", name);
         }
     }
-
-
 }

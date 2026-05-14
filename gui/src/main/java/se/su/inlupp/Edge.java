@@ -9,6 +9,4 @@ public interface Edge <T>{
     void setWeight(int weight);
 
     String getName();
-
-    String toString();
 }
