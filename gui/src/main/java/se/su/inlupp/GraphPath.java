@@ -1,9 +1,6 @@
 package se.su.inlupp;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class GraphPath<T> implements Path<T>{
 
@@ -11,6 +8,7 @@ public class GraphPath<T> implements Path<T>{
 
     private final List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
+
 
 
     public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges){
@@ -50,4 +48,5 @@ public class GraphPath<T> implements Path<T>{
 
     @Override
     public String toString(){return "Path consists of: " + pathNodes;}
+
 }

@@ -5,14 +5,17 @@ import java.util.*;
 public class ListGraph <T> implements Graph<T>{
 
     private final Map<T, Set<Edge<T>>> graph = new HashMap<>();
+    private final Set<String> cityNames = new HashSet<>();
 
     public Iterator<T> iterator(){
 
-        return null; //Vänta tills jag förstår bättre
+        return graph.keySet().iterator(); //Vänta tills jag förstår bättre
     }
 
     @Override
-    public final void add(T node) {graph.putIfAbsent(node, new HashSet<>());}
+    public final void add(T node) {
+        graph.putIfAbsent(node, new HashSet<>());
+    }
 
     @Override
     public void remove(T node) {
@@ -95,6 +98,12 @@ public class ListGraph <T> implements Graph<T>{
             }
         }
     }
+
+    public Set<String> getCityNames(){return cityNames;}
+
+    public void addCityName(String cityName){cityNames.add(cityName);}
+
+    public void removeCityName(String cityName){cityNames.remove(cityName);}
 
     public String toString(){return graph.toString();}
 }
