@@ -64,6 +64,10 @@ public class GuiCity extends BorderPane {
         });
     }
 
+    public void removeCity(){
+        node.getChildren().clear();
+    }
+
     public class StartDragHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {

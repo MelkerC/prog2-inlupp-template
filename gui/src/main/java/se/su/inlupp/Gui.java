@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static javafx.application.Platform.exit;
@@ -32,7 +33,9 @@ public class Gui extends Application {
 
     private final SpawnNode spawnNode = new SpawnNode();
 
-    private Button addCity, screenShotButton;
+    private Button addCity, screenShotButton, removeCity;
+
+    private ArrayList<GuiCity> guiCities = new ArrayList<>();
 
 
 
@@ -81,10 +84,11 @@ public class Gui extends Application {
       graphArea = new Pane();
 
       addCity = new Button("Add City");
+      removeCity = new Button("Remove City");
       screenShotButton = new Button("Save Screenshot");
       Button mainMenuButton = new Button("Main Menu");
       Button pathLibrary = new Button("Path Library");
-      Button removeCity = new Button("Remove City");
+
       Button linkCities = new Button("Link Cities");
       Button findPath = new Button("Find Path");
 
@@ -99,7 +103,11 @@ public class Gui extends Application {
       borderPane.setTop(upperScreenMenu);
       borderPane.setBottom(lowerScreenMenu);
 
+      //Button action handler
       addCity.setOnAction(new AddCityButtonHandler());
+
+      removeCity.setOnAction(new RemoveCityButtonHandler());
+
       screenShotButton.setOnAction(new SaveScreenShotButtonHandler());
 
       mainMenuButton.setOnAction((arg) ->{ //Denna kan bytas ut med en inre klass eftersom att det kommer ske ofta
@@ -113,7 +121,6 @@ public class Gui extends Application {
   }
 
   public void saveAndExit() {
-
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.setTitle("Save and Exit");
       alert.setHeaderText("You are about to exit without saving. Any unsaved data will get lost :(");
@@ -132,6 +139,8 @@ public class Gui extends Application {
           double y = mouseEvent.getY();
 
           GuiCity city = new GuiCity(x, y);
+
+          guiCities.add(city);
           graphArea.getChildren().add(city);
           graphArea.setOnMouseClicked(null);
           addCity.setDisable(false);
@@ -143,6 +152,21 @@ public class Gui extends Application {
       public void handle(ActionEvent actionEvent) {
           graphArea.setOnMouseClicked(spawnNode);
           addCity.setDisable(true);
+      }
+  }
+
+  public class RemoveCityButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+
+          for(GuiCity city : guiCities){
+              if(city.isFocused()){
+                  city.removeCity();
+                  System.out.println("Removed City");
+              }
+              System.out.println("City");
+          }
+          //removeCity.setDisable(true);
       }
   }
 
