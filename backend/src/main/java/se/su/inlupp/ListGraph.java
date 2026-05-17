@@ -1,59 +1,109 @@
 package se.su.inlupp;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
-public class ListGraph<T> implements Graph<T> {
+public class ListGraph <T> implements Graph<T>{
 
-  @Override
-  public void add(T node) {
-    throw new UnsupportedOperationException("Unimplemented method 'add'");
-  }
+    private final Map<T, Set<Edge<T>>> graph = new HashMap<>();
+    private final Set<String> cityNames = new HashSet<>();
 
-  @Override
-  public void remove(T node) {
-    throw new UnsupportedOperationException("Unimplemented method 'remove'");
-  }
+    public Iterator<T> iterator(){
 
-  @Override
-  public boolean hasNode(T node) {
-    throw new UnsupportedOperationException("Unimplemented method 'hasNode'");
-  }
+        return graph.keySet().iterator(); //Vänta tills jag förstår bättre
+    }
 
-  @Override
-  public void connect(T node1, T node2, String name, int weight) {
-    throw new UnsupportedOperationException("Unimplemented method 'connect'");
-  }
+    @Override
+    public final void add(T node) {
+        graph.putIfAbsent(node, new HashSet<>());
+    }
 
-  @Override
-  public void disconnect(T node1, T node2) {
-    throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
-  }
+    @Override
+    public void remove(T node) {
+        if(hasNode(node)){
+            for(Edge<T> edge: new ArrayList<>(getEdgesFrom(node))){
+                disconnect(node, edge.getDestination());
+            }
+            graph.remove(node);
+        }else{
+            throw new NoSuchElementException("At least one node is not connected");
+        }
+    }
 
-  @Override
-  public void setConnectionWeight(T node1, T node2, int weight) {
-    throw new UnsupportedOperationException("Unimplemented method 'setConnectionWeight'");
-  }
+    @Override
+    public boolean hasNode(T node) {return graph.containsKey(node);}
 
-  @Override
-  public Set<T> getNodes() {
-    throw new UnsupportedOperationException("Unimplemented method 'getNodes'");
-  }
+    @Override
+    public void connect(T node1, T node2, String name, int weight) {
+        this.add(node1);
+        this.add(node2);
 
-  @Override
-  public Collection<Edge<T>> getEdgesFrom(T node) {
-    throw new UnsupportedOperationException("Unimplemented method 'getEdgesFrom'");
-  }
+        Set<Edge<T>> edgesNode1 = graph.get(node1);
+        Set<Edge<T>> edgesNode2 = graph.get(node2);
 
-  @Override
-  public Edge<T> getEdgeBetween(T node1, T node2) {
-    throw new UnsupportedOperationException("Unimplemented method 'getEdgeBetween'");
-  }
+        edgesNode1.add(new TrainRail<>(node2, name, weight));
+        edgesNode2.add(new TrainRail<>(node1, name, weight));
+    }
 
-  @Override
-  public Iterator<T> iterator() {
-    throw new UnsupportedOperationException("Unimplemented method 'iterator'");
-  }
+    @Override
+    public void disconnect(T node1, T node2) {
+        if(!hasNode(node1) || !hasNode(node2)){
+            throw new NoSuchElementException("At least one node is not connected");
+        }
+        graph.get(node1).remove(getEdgeBetween(node1, node2));
+        graph.get(node2).remove(getEdgeBetween(node2, node1));
+    }
+
+    @Override
+    public void setConnectionWeight(T node1, T node2, int weight) {
+        if(hasNode(node1) && hasNode(node2) && getEdgeBetween(node1, node2) != null){
+            getEdgeBetween(node1, node2).setWeight(weight);
+            getEdgeBetween(node2, node1).setWeight(weight);
+        }else{
+            throw new NoSuchElementException("At least node or node is not connected");
+        }
+    }
+
+    @Override
+    public Set<T> getNodes() {return graph.keySet();}
+
+    @Override
+    public Collection<Edge<T>> getEdgesFrom(T node) {return graph.get(node);}
+
+    @Override
+    public Edge<T> getEdgeBetween(T node1, T node2) {
+        for(Edge<T> edge: graph.get(node1)){
+            if(edge.getDestination().equals(node2)){
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    public boolean hasPath(T node1, T node2){
+        Set<T> visited = new HashSet<>();
+
+        if(getEdgesFrom(node1) == null || getEdgesFrom(node2) == null){return false;}
+
+        visit(node1, visited);
+        return visited.contains(node2);
+    }
+
+    private void visit(T current, Set<T> visited){
+        visited.add(current);
+        if(graph.get(current).isEmpty()){return;}
+        for(Edge<T> edge: graph.get(current)){
+            T destination = edge.getDestination();
+            if(!visited.contains(destination)){
+                visit(destination, visited);
+            }
+        }
+    }
+
+    public Set<String> getCityNames(){return cityNames;}
+
+    public void addCityName(String cityName){cityNames.add(cityName);}
+
+    public void removeCityName(String cityName){cityNames.remove(cityName);}
+
+    public String toString(){return graph.toString();}
 }
-

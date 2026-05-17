@@ -5,8 +5,9 @@ public class City {
 
     private boolean visited;
 
-    public City(String name){
+    public City(String name,  boolean visited) {
         this.name = name;
+        this.visited = visited;
     }
 
     public String getName() {
