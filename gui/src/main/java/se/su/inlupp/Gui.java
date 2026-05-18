@@ -38,11 +38,8 @@ public class Gui extends Application {
     private final ArrayList<GuiCity> guiCities = new ArrayList<>();
     private final ArrayList<Button> buttons = new ArrayList<>();
 
-
-
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
-
       stage.setScene(buildMenuScene(stage));
       stage.show();
   }
@@ -157,70 +154,28 @@ public class Gui extends Application {
   public class LinkCitiesButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent e) {
-          openMenu();
+          Stage linkCitiesStage = new Stage();
+          FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to link.");
 
-          Stage linkCitiesStage = new Stage(); linkCitiesStage.setTitle("Link Cities");
-
-          FlowPane flowPane = createFlowPane("Write the names of the two cities\nthat you would like to link.");
-          HBox buttonBox = new HBox(); buttonBox.setAlignment(Pos.CENTER); buttonBox.setSpacing(5);
           HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
-
           TextField city1 = new TextField(); TextField city2 = new TextField();
           city1.setPromptText("City 1"); city2.setPromptText("City 2");
           city1.setPrefWidth(75); city2.setPrefWidth(75);
-          Button linkButton = new Button("Link Cities");
-          Button cancelButton = new Button("Cancel");
-
           textFieldBox.getChildren().addAll(city1, city2);
-          buttonBox.getChildren().addAll(linkButton, cancelButton);
-          
+          flowPane.getChildren().add(1,textFieldBox);
 
-
-          flowPane.getChildren().addAll(textFieldBox, buttonBox);
-
-          cancelButton.setOnAction((event) -> {
-              closeStage(linkCitiesStage);
-          });
-
-          linkCitiesStage.setOnCloseRequest((event) -> {
-              closeStage(linkCitiesStage);
-          });
-
-          linkCitiesStage.setScene(new Scene(flowPane, 250, 150));
-          linkCitiesStage.setResizable(false);
-          linkCitiesStage.show();
+          setupWindow(linkCitiesStage, "Link Cities", flowPane, 250, 150);
       }
   }
 
   public class RemoveCityButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent actionEvent) {
-
-          openMenu();
-
-          Stage removeCityStage = new Stage();removeCityStage.setTitle("Remove City");
-
-          FlowPane flowPane = createFlowPane("Write city to remove");
-          HBox buttonBox = new HBox(); buttonBox.setAlignment(Pos.CENTER); buttonBox.setSpacing(5);
-
+          Stage removeCityStage = new Stage();
+          FlowPane flowPane = createFlowPane(removeCityStage, new Confirming("RemoveCity", removeCityStage), "Write city to remove");
           TextField removeCity  = new TextField(); removeCity.setPromptText("Enter city name"); removeCity.setPrefWidth(10);
-          Button removeButton = new Button("Remove City");
-          Button cancelButton = new Button("Cancel");
-
-          buttonBox.getChildren().addAll(removeButton, cancelButton);
-          flowPane.getChildren().addAll(removeCity, buttonBox);
-
-          cancelButton.setOnAction((arg) -> {
-              closeStage(removeCityStage);
-          });
-
-          removeCityStage.setOnCloseRequest((event) -> {
-              closeStage(removeCityStage);
-          });
-
-          removeCityStage.setScene(new Scene(flowPane, 250, 150));
-          removeCityStage.setResizable(false);
-          removeCityStage.show();
+          flowPane.getChildren().add(1, removeCity);
+          setupWindow(removeCityStage, "Remove City", flowPane,250, 150);
       }
   }
 
@@ -239,11 +194,56 @@ public class Gui extends Application {
       }
   }
 
-  public FlowPane createFlowPane(String info){
+  public void setupWindow(Stage stage, String stageTitle, Pane pane, double x, double y) {
+      stage.setTitle(stageTitle);
+      stage.setScene(new Scene(pane, x, y));
+      stage.setResizable(false);
+      stage.show();
+  }
+
+  public FlowPane createFlowPane(Stage stage, EventHandler<ActionEvent> eventHandler, String info) {
+      openMenu();
       FlowPane flowPane = new FlowPane();flowPane.setAlignment(Pos.CENTER); flowPane.setOrientation(Orientation.VERTICAL); flowPane.setVgap(10);
       Text infoText = new Text(info);infoText.setTextAlignment(TextAlignment.CENTER);
-      flowPane.getChildren().add(infoText);
+      Button cancelButton = new Button("Cancel"); Button confirmButton = new Button("Confirm");
+      HBox buttonBox = new HBox(); buttonBox.setAlignment(Pos.CENTER); buttonBox.setSpacing(10); buttonBox.getChildren().addAll(confirmButton, cancelButton);
+
+      flowPane.getChildren().addAll(infoText, buttonBox);
+
+      confirmButton.setOnAction(eventHandler);
+
+      cancelButton.setOnAction((event) -> {
+          closeStage(stage);
+      });
+
+      stage.setOnCloseRequest((event) -> {
+          closeStage(stage);
+      });
       return flowPane;
+  }
+
+  public class Confirming implements EventHandler<ActionEvent> {
+      private final String task;
+      private final Stage stage;
+
+      public Confirming(String task, Stage stage) {
+          this.task = task;
+          this.stage = stage;
+      }
+      @Override
+      public void handle(ActionEvent actionEvent) {
+          closeStage(stage);
+
+          switch(task){
+              case "RemoveCity":
+                  System.out.println("Removing city");
+                  break;
+              case "LinkCities":
+                  System.out.println("Linking cities");
+                  break;
+
+          }
+      }
   }
 
   public class SaveScreenShotButtonHandler implements EventHandler<ActionEvent> {

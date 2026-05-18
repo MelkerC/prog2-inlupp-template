@@ -34,6 +34,8 @@ public class GuiCity extends BorderPane {
 
     private CheckBox visitedCheck;
 
+    private TextField cityName;
+
     public GuiCity(double x, double y, Gui gui) {
         relocate(x, y);
         this.gui = gui;
@@ -110,6 +112,20 @@ public class GuiCity extends BorderPane {
             relocate(x, y);
         }
     }
+    public class Confirming implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            if(cityName.getText().isEmpty()){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Error: Missing City name");
+                alert.setHeaderText("The city has to have a unique name.");
+                alert.showAndWait();
+            }else{
+                createCityNode(cityName.getText());
+                closePopup(popUpWindow);
+            }
+        }
+    }
 
     public class CreateCity implements EventHandler<ActionEvent> {
         @Override
@@ -120,10 +136,10 @@ public class GuiCity extends BorderPane {
 
             Stage popUpWindow = new Stage();
 
-            FlowPane flowPane = gui.createFlowPane("Fill in this form.\nPress \"Create City\" to continue");
+            FlowPane flowPane = gui.createFlowPane(popUpWindow,new Confirming(),"Fill in this form.\nPress \"Create City\" to continue");
             HBox buttonBox = new HBox();buttonBox.setAlignment(Pos.CENTER);
 
-            TextField cityName = new TextField(); cityName.setPromptText("City name"); cityName.setPrefWidth(10);
+            cityName = new TextField(); cityName.setPromptText("City name"); cityName.setPrefWidth(10);
             visitedCheck = new CheckBox("Visited");
             Button createCity = new Button("Create City");
             Button cancel = new Button("Cancel");
