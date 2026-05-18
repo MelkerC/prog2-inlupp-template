@@ -4,16 +4,16 @@ import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 
@@ -35,7 +35,8 @@ public class Gui extends Application {
 
     private Button addCity, screenShotButton, removeCity;
 
-    private ArrayList<GuiCity> guiCities = new ArrayList<>();
+    private final ArrayList<GuiCity> guiCities = new ArrayList<>();
+    private final ArrayList<Button> buttons = new ArrayList<>();
 
 
 
@@ -83,14 +84,13 @@ public class Gui extends Application {
       HBox upperScreenMenu = new HBox();
       graphArea = new Pane();
 
-      addCity = new Button("Add City");
-      removeCity = new Button("Remove City");
-      screenShotButton = new Button("Save Screenshot");
-      Button mainMenuButton = new Button("Main Menu");
-      Button pathLibrary = new Button("Path Library");
-
-      Button linkCities = new Button("Link Cities");
-      Button findPath = new Button("Find Path");
+      addCity = new Button("Add City");buttons.add(addCity);
+      removeCity = new Button("Remove City");buttons.add(removeCity);
+      screenShotButton = new Button("Save Screenshot");buttons.add(screenShotButton);
+      Button mainMenuButton = new Button("Main Menu");buttons.add(mainMenuButton);
+      Button pathLibrary = new Button("Path Library");buttons.add(pathLibrary);
+      Button linkCities = new Button("Link Cities");buttons.add(linkCities);
+      Button findPath = new Button("Find Path");buttons.add(findPath);
 
       borderPane.setCenter(graphArea);
       lowerScreenMenu.getChildren().addAll(addCity, removeCity, linkCities, findPath, pathLibrary);
@@ -105,10 +105,9 @@ public class Gui extends Application {
 
       //Button action handler
       addCity.setOnAction(new AddCityButtonHandler());
-
       removeCity.setOnAction(new RemoveCityButtonHandler());
-
       screenShotButton.setOnAction(new SaveScreenShotButtonHandler());
+      linkCities.setOnAction(new LinkCitiesButtonHandler());
 
       mainMenuButton.setOnAction((arg) ->{ //Denna kan bytas ut med en inre klass eftersom att det kommer ske ofta
           System.out.println("Back to Main Menu");
@@ -138,20 +137,58 @@ public class Gui extends Application {
           double x = mouseEvent.getX();
           double y = mouseEvent.getY();
 
-          GuiCity city = new GuiCity(x, y);
+          GuiCity city = new GuiCity(x, y, Gui.this);
 
           guiCities.add(city);
           graphArea.getChildren().add(city);
           graphArea.setOnMouseClicked(null);
-          addCity.setDisable(false);
+          closeStage(null);
       }
   }
 
   public class AddCityButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent actionEvent) {
+          openMenu();
           graphArea.setOnMouseClicked(spawnNode);
-          addCity.setDisable(true);
+      }
+  }
+
+  public class LinkCitiesButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent e) {
+          openMenu();
+
+          Stage linkCitiesStage = new Stage(); linkCitiesStage.setTitle("Link Cities");
+
+          FlowPane flowPane = createFlowPane("Write the names of the two cities\nthat you would like to link.");
+          HBox buttonBox = new HBox(); buttonBox.setAlignment(Pos.CENTER); buttonBox.setSpacing(5);
+          HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
+
+          TextField city1 = new TextField(); TextField city2 = new TextField();
+          city1.setPromptText("City 1"); city2.setPromptText("City 2");
+          city1.setPrefWidth(75); city2.setPrefWidth(75);
+          Button linkButton = new Button("Link Cities");
+          Button cancelButton = new Button("Cancel");
+
+          textFieldBox.getChildren().addAll(city1, city2);
+          buttonBox.getChildren().addAll(linkButton, cancelButton);
+          
+
+
+          flowPane.getChildren().addAll(textFieldBox, buttonBox);
+
+          cancelButton.setOnAction((event) -> {
+              closeStage(linkCitiesStage);
+          });
+
+          linkCitiesStage.setOnCloseRequest((event) -> {
+              closeStage(linkCitiesStage);
+          });
+
+          linkCitiesStage.setScene(new Scene(flowPane, 250, 150));
+          linkCitiesStage.setResizable(false);
+          linkCitiesStage.show();
       }
   }
 
@@ -159,15 +196,54 @@ public class Gui extends Application {
       @Override
       public void handle(ActionEvent actionEvent) {
 
-          for(GuiCity city : guiCities){
-              if(city.isFocused()){
-                  city.removeCity();
-                  System.out.println("Removed City");
-              }
-              System.out.println("City");
-          }
-          //removeCity.setDisable(true);
+          openMenu();
+
+          Stage removeCityStage = new Stage();removeCityStage.setTitle("Remove City");
+
+          FlowPane flowPane = createFlowPane("Write city to remove");
+          HBox buttonBox = new HBox(); buttonBox.setAlignment(Pos.CENTER); buttonBox.setSpacing(5);
+
+          TextField removeCity  = new TextField(); removeCity.setPromptText("Enter city name"); removeCity.setPrefWidth(10);
+          Button removeButton = new Button("Remove City");
+          Button cancelButton = new Button("Cancel");
+
+          buttonBox.getChildren().addAll(removeButton, cancelButton);
+          flowPane.getChildren().addAll(removeCity, buttonBox);
+
+          cancelButton.setOnAction((arg) -> {
+              closeStage(removeCityStage);
+          });
+
+          removeCityStage.setOnCloseRequest((event) -> {
+              closeStage(removeCityStage);
+          });
+
+          removeCityStage.setScene(new Scene(flowPane, 250, 150));
+          removeCityStage.setResizable(false);
+          removeCityStage.show();
       }
+  }
+
+
+  public void openMenu(){
+      for(Button button : buttons){
+          button.setDisable(true);
+      }
+  }
+
+  public void closeStage(Stage stage) {
+      if(stage != null){stage.close();}
+
+      for(Button button : buttons){
+          button.setDisable(false);
+      }
+  }
+
+  public FlowPane createFlowPane(String info){
+      FlowPane flowPane = new FlowPane();flowPane.setAlignment(Pos.CENTER); flowPane.setOrientation(Orientation.VERTICAL); flowPane.setVgap(10);
+      Text infoText = new Text(info);infoText.setTextAlignment(TextAlignment.CENTER);
+      flowPane.getChildren().add(infoText);
+      return flowPane;
   }
 
   public class SaveScreenShotButtonHandler implements EventHandler<ActionEvent> {

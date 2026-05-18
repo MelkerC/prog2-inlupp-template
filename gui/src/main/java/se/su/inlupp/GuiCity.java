@@ -21,6 +21,7 @@ import javax.swing.*;
 
 public class GuiCity extends BorderPane {
 
+    private final Gui gui;
     private final StackPane node = new StackPane();
 
     private final Circle circle = new Circle(0, 0, 25);;
@@ -33,8 +34,9 @@ public class GuiCity extends BorderPane {
 
     private CheckBox visitedCheck;
 
-    public GuiCity(double x, double y) {
+    public GuiCity(double x, double y, Gui gui) {
         relocate(x, y);
+        this.gui = gui;
 
         circle.setFill(Color.GRAY);
 
@@ -114,23 +116,20 @@ public class GuiCity extends BorderPane {
         public void handle(ActionEvent actionEvent) {
 
             createCity.setDisable(true);
-            System.out.println("Varv");
-            //knappen ska försvinna när staden är skapad
+            gui.openMenu();
 
             Stage popUpWindow = new Stage();
 
-            BorderPane borderPane = new BorderPane();
-            FlowPane flowPane = new FlowPane();flowPane.setAlignment(Pos.CENTER); flowPane.setOrientation(Orientation.VERTICAL);flowPane.setVgap(10);
+            FlowPane flowPane = gui.createFlowPane("Fill in this form.\nPress \"Create City\" to continue");
             HBox buttonBox = new HBox();buttonBox.setAlignment(Pos.CENTER);
 
-            Text writeCityName = new Text("Fill in this form.\nPress \"Create City\" to continue"); writeCityName.setTextAlignment(TextAlignment.CENTER);
             TextField cityName = new TextField(); cityName.setPromptText("City name"); cityName.setPrefWidth(10);
             visitedCheck = new CheckBox("Visited");
             Button createCity = new Button("Create City");
             Button cancel = new Button("Cancel");
 
             buttonBox.getChildren().addAll(createCity, cancel);
-            flowPane.getChildren().addAll(writeCityName, cityName, visitedCheck, buttonBox);
+            flowPane.getChildren().addAll(cityName, visitedCheck, buttonBox);
 
             createCity.setOnAction(event -> {
 
@@ -149,10 +148,10 @@ public class GuiCity extends BorderPane {
                 closePopup(popUpWindow);
             });
 
-            borderPane.setCenter(flowPane);
             popUpWindow.setTitle("Create City");
-            popUpWindow.setScene(new Scene(borderPane, 250, 300));
+            popUpWindow.setScene(new Scene(flowPane, 250, 300));
             popUpWindow.setResizable(false);
+
             popUpWindow.setOnCloseRequest((event) -> {
                 closePopup(popUpWindow);
 
@@ -171,17 +170,12 @@ public class GuiCity extends BorderPane {
             vBox.setAlignment(Pos.CENTER);
             vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
-
-
             node.getChildren().addAll(circle, vBox);
         }
 
         public void closePopup(Stage popUpWindow) {
             createCity.setDisable(false);
-
-            if(popUpWindow.isShowing()){
-                popUpWindow.close();
-            }
+            gui.closeStage(popUpWindow);
         }
     }
 }
