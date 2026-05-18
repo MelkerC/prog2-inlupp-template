@@ -179,6 +179,13 @@ public class Gui extends Application {
       }
   }
 
+  public void addButton(Button button){
+      buttons.add(button);
+  }
+
+  public void removeButton(Button button){
+      buttons.remove(button);
+  }
 
   public void openMenu(){
       for(Button button : buttons){
