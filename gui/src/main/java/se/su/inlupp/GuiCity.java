@@ -32,9 +32,11 @@ public class GuiCity extends BorderPane {
 
     private Text cityNameTag;
 
-    private CheckBox visitedCheck;
+    private final CheckBox visitedCheck = new CheckBox("Visited");
 
     private TextField cityName;
+
+    private Stage popUpWindow;
 
     public GuiCity(double x, double y, Gui gui) {
         relocate(x, y);
@@ -112,6 +114,7 @@ public class GuiCity extends BorderPane {
             relocate(x, y);
         }
     }
+
     public class Confirming implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -125,64 +128,13 @@ public class GuiCity extends BorderPane {
                 closePopup(popUpWindow);
             }
         }
-    }
-
-    public class CreateCity implements EventHandler<ActionEvent> {
-        @Override
-        public void handle(ActionEvent actionEvent) {
-
-            createCity.setDisable(true);
-            gui.openMenu();
-
-            Stage popUpWindow = new Stage();
-
-            FlowPane flowPane = gui.createFlowPane(popUpWindow,new Confirming(),"Fill in this form.\nPress \"Create City\" to continue");
-            HBox buttonBox = new HBox();buttonBox.setAlignment(Pos.CENTER);
-
-            cityName = new TextField(); cityName.setPromptText("City name"); cityName.setPrefWidth(10);
-            visitedCheck = new CheckBox("Visited");
-            Button createCity = new Button("Create City");
-            Button cancel = new Button("Cancel");
-
-            buttonBox.getChildren().addAll(createCity, cancel);
-            flowPane.getChildren().addAll(cityName, visitedCheck, buttonBox);
-
-            createCity.setOnAction(event -> {
-
-                if(cityName.getText().isEmpty()){
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Error: Missing City name");
-                    alert.setHeaderText("The city has to have a unique name.");
-                    alert.showAndWait();
-                }else{
-                    createCityNode(cityName.getText());
-                    closePopup(popUpWindow);
-                }
-            });
-
-            cancel.setOnAction(event -> {
-                closePopup(popUpWindow);
-            });
-
-            popUpWindow.setTitle("Create City");
-            popUpWindow.setScene(new Scene(flowPane, 250, 300));
-            popUpWindow.setResizable(false);
-
-            popUpWindow.setOnCloseRequest((event) -> {
-                closePopup(popUpWindow);
-
-            });
-            popUpWindow.show();
-        }
 
         public void createCityNode(String cityName) {
             node.getChildren().clear();
-
             circle.setFill(Color.GREEN);
             cityNameTag = new Text(cityName);
 
             VBox vBox = new VBox();
-
             vBox.setAlignment(Pos.CENTER);
             vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
@@ -192,6 +144,24 @@ public class GuiCity extends BorderPane {
         public void closePopup(Stage popUpWindow) {
             createCity.setDisable(false);
             gui.closeStage(popUpWindow);
+        }
+    }
+
+    public class CreateCity implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            createCity.setDisable(true);
+            popUpWindow = new Stage();
+
+            FlowPane flowPane = gui.createFlowPane(popUpWindow,new Confirming(),"Fill in this form.\nPress \"Create City\" to continue");
+            cityName = new TextField(); cityName.setPromptText("City name"); cityName.setPrefWidth(10);
+            flowPane.getChildren().add(1, cityName);
+
+            popUpWindow.setOnCloseRequest((event) -> {
+                createCity.setDisable(false);
+                gui.closeStage(popUpWindow);
+            });
+            gui.setupWindow(popUpWindow, "Create City", flowPane, 250, 300);
         }
     }
 }
