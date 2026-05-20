@@ -42,12 +42,13 @@ public class Gui extends Application {
 
     private ObservableList<String> pathList;
 
+    private HBox buttonBox;
     private Pane graphArea;
     private BorderPane borderPane;
     private Stage stage, pathLibraryStage;
     private TextField textfield1 = new TextField();
     private TextField textfield2 = new TextField();
-    private Button addCity, screenShotButton, removeCity, showPath;
+    private Button addCity, screenShotButton, removeCity;
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
@@ -179,13 +180,17 @@ public class Gui extends Application {
 
         pathList = FXCollections.observableArrayList("Stockholm -> Paris", "Berlin -> Madrid", "Oslo -> Rom");
 
-
+        buttonBox = new HBox();
         ListView<String> listView = new ListView<>(pathList);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        showPath = new Button("Show Path"); showPath.setDisable(true);
+        Button deletePath = new Button("Delete Path");
+        Button showPath = new Button("Show Path");
+        buttonBox.setDisable(true);
+        deletePath.setOnAction(new DeletePathButtonHandler());
         showPath.setOnAction(new ShowPathButtonHandler());
+        buttonBox.getChildren().addAll(showPath, deletePath);
         listView.getSelectionModel().selectedItemProperty().addListener(new ButtonActiveHandler());
-        FlowPane flowPane = new FlowPane(showPath, listView);
+        FlowPane flowPane = new FlowPane(buttonBox, listView);
 
         pathLibraryStage.setOnCloseRequest((event) -> {
             closeStage(pathLibraryStage);
@@ -198,14 +203,25 @@ public class Gui extends Application {
   public class ButtonActiveHandler implements ChangeListener<String> {
       @Override
       public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-          showPath.setDisable(false);
+          buttonBox.setDisable(false);
       }
   }
+
+  public class DeletePathButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+          Alert confirmDelete = new Alert(Alert.AlertType.CONFIRMATION);
+          confirmDelete.setTitle("Confirm Delete");
+          confirmDelete.setHeaderText("Delete?");
+          confirmDelete.setContentText("Are you sure?");
+          confirmDelete.showAndWait();
+      }
+  }
+
   public class ShowPathButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent actionEvent) {
           closeStage(pathLibraryStage);
-
       }
   }
 
