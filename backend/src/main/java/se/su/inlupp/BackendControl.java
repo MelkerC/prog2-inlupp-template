@@ -1,10 +1,13 @@
 package se.su.inlupp;
 
-public class MainProgram {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BackendControl {
 
     //Memory data
     private ListGraph<City> citiesGraph = new ListGraph<>();
-    private PathLibrary<City> pathLibrary = new PathLibrary();
+    private PathLibrary<TrainRail<City>> pathLibrary = new PathLibrary();
 
     //Pathfinders
     private final PathFinder<City> pathFinderBFS = new BFSPathFinder<>();
@@ -27,6 +30,10 @@ public class MainProgram {
         citiesGraph.removeCityName(city.getName());
         citiesGraph.remove(city);
         return String.format("%s has been removed from the graph.\n", city.getName());
+    }
+
+    public List<String> getPaths(){
+        return new ArrayList<>(pathLibrary.getAllPaths().keySet());
     }
 
     private String addConnection(City city1, City city2, int weight){

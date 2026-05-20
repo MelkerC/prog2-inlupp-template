@@ -1,6 +1,10 @@
 package se.su.inlupp;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -8,12 +12,12 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 
@@ -27,73 +31,67 @@ import java.util.Optional;
 import static javafx.application.Platform.exit;
 
 
+
 public class Gui extends Application {
+    private final BackendControl backendControl = new BackendControl();
+    private final SpawnNode spawnNode = new SpawnNode();
+    private final MenuBar menuBar = new MenuBar();
+    private final ArrayList<GuiCity> guiCities = new ArrayList<>();
+    private final ArrayList<Control> buttons = new ArrayList<>();
+    private final FileChooser fileChooser = new FileChooser();
+
+    private ObservableList<String> pathList;
 
     private Pane graphArea;
-
-    private final SpawnNode spawnNode = new SpawnNode();
-
-    private Button addCity, screenShotButton, removeCity;
-
-    private final ArrayList<GuiCity> guiCities = new ArrayList<>();
-    private final ArrayList<Button> buttons = new ArrayList<>();
+    private BorderPane borderPane;
+    private Stage stage, pathLibraryStage;
+    private TextField textfield1 = new TextField();
+    private TextField textfield2 = new TextField();
+    private Button addCity, screenShotButton, removeCity, showPath;
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
-      stage.setScene(buildMenuScene(stage));
+      stage.setScene(buildTrainScene(stage));
       stage.show();
   }
 
-  public Scene buildMenuScene(Stage stage) {
-      VBox menuBar = new VBox(25);
-
-      Label nameLabel = new Label("Welcome to the train pathfinder!");
-      Button startButton = new Button("Start");
-      Button saveButton = new Button("Save");
-      Button exitButton = new Button("Exit");
-
-      //StartButton funktionality
-      startButton.setOnAction((arg) ->{
-          System.out.println("Starting train pathfinder");
-          stage.setScene(buildTrainScene(stage));
-          stage.show();
-      });
-
-      //SaveButton funktionalitet
-      saveButton.setOnAction((arg) ->{
-          System.out.println("Saving...");
-      });
-
-      //ExitButton funktionalitet
-      exitButton.setOnAction((arg) ->{
-          saveAndExit();
-      });
-
-      menuBar.setAlignment(Pos.CENTER);
-      menuBar.getChildren().addAll(nameLabel, startButton, saveButton, exitButton);
-
-      return new Scene(menuBar, 1000, 500);
-  }
-
   public Scene buildTrainScene(Stage stage) {
-      BorderPane borderPane = new BorderPane();
+      this.stage = stage;
+
+      buttons.add(menuBar);
+      //Paneler
+      graphArea = new Pane();
+      borderPane = new BorderPane();
       HBox lowerScreenMenu = new HBox();
       HBox upperScreenMenu = new HBox();
-      graphArea = new Pane();
+      Menu menu = new Menu("Menu");
+      menuBar.getMenus().add(menu);
 
+      //MenuButtons
+      MenuItem open = new MenuItem("Open");
+      open.setOnAction(new openHandler());
+      MenuItem save = new MenuItem("Save");
+      save.setOnAction(new saveHandler());
+      MenuItem exit = new MenuItem("Exit");
+      exit.setOnAction((arg) ->{
+          saveAndExit();
+      });
+      menu.getItems().addAll(open, save, exit);
+
+      //Buttons
       addCity = new Button("Add City");buttons.add(addCity);
       removeCity = new Button("Remove City");buttons.add(removeCity);
       screenShotButton = new Button("Save Screenshot");buttons.add(screenShotButton);
-      Button mainMenuButton = new Button("Main Menu");buttons.add(mainMenuButton);
       Button pathLibrary = new Button("Path Library");buttons.add(pathLibrary);
       Button linkCities = new Button("Link Cities");buttons.add(linkCities);
       Button findPath = new Button("Find Path");buttons.add(findPath);
 
+      //Placering
       borderPane.setCenter(graphArea);
       lowerScreenMenu.getChildren().addAll(addCity, removeCity, linkCities, findPath, pathLibrary);
       lowerScreenMenu.setAlignment(Pos.CENTER); lowerScreenMenu.setSpacing(10);
       lowerScreenMenu.setStyle("-fx-background-color: green;");
-      upperScreenMenu.getChildren().addAll(mainMenuButton, screenShotButton);
+      upperScreenMenu.getChildren().addAll(menuBar, screenShotButton);
       upperScreenMenu.setSpacing(10);
       upperScreenMenu.setStyle("-fx-background-color: green;");
 
@@ -105,13 +103,8 @@ public class Gui extends Application {
       removeCity.setOnAction(new RemoveCityButtonHandler());
       screenShotButton.setOnAction(new SaveScreenShotButtonHandler());
       linkCities.setOnAction(new LinkCitiesButtonHandler());
-
-      mainMenuButton.setOnAction((arg) ->{ //Denna kan bytas ut med en inre klass eftersom att det kommer ske ofta
-          System.out.println("Back to Main Menu");
-          stage.setScene(buildMenuScene(stage));
-          stage.show();
-      });
-
+      findPath.setOnAction(new CreatePathButtonHandler());
+      pathLibrary.setOnAction(new PathLibraryButtonHandler());
 
       return new Scene(borderPane, 1000, 500);
   }
@@ -126,6 +119,24 @@ public class Gui extends Application {
       if(okButton.get().equals(ButtonType.OK)){
           exit();
       }
+  }
+
+  public class openHandler implements EventHandler<ActionEvent> {
+    @Override
+    public void handle(ActionEvent actionEvent) {
+        fileChooser.setInitialDirectory(new File("/Users/"));
+        File openFile = fileChooser.showOpenDialog(stage);
+        System.out.println("Opening file: " + openFile);
+    }
+  }
+
+  public class saveHandler implements EventHandler<ActionEvent> {
+    @Override
+    public void handle(ActionEvent actionEvent) {
+        fileChooser.setInitialDirectory(new File("/Users/"));
+        File openFile = fileChooser.showSaveDialog(stage);
+        System.out.println("Saving file: " + openFile);
+    }
   }
 
   public class SpawnNode implements EventHandler<MouseEvent> {
@@ -143,6 +154,61 @@ public class Gui extends Application {
       }
   }
 
+  public class PathLibraryButtonHandler implements EventHandler<ActionEvent> {
+    @Override
+    public void handle(ActionEvent e) {
+
+        /*
+        try{
+            if(pathList.isEmpty()){
+
+                showInformation("No paths have been saved to the library.", "Error");
+                return;
+            }
+        }catch(NullPointerException ex){
+            showInformation("No paths have been saved to the library.", "Error");
+            return;
+        }
+
+        pathList = FXCollections.observableArrayList(mainProgram.getPaths()); Denna är till slutprogrammet
+        */
+
+        openMenu();
+
+        pathLibraryStage = new Stage();
+
+        pathList = FXCollections.observableArrayList("Stockholm -> Paris", "Berlin -> Madrid", "Oslo -> Rom");
+
+
+        ListView<String> listView = new ListView<>(pathList);
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        showPath = new Button("Show Path"); showPath.setDisable(true);
+        showPath.setOnAction(new ShowPathButtonHandler());
+        listView.getSelectionModel().selectedItemProperty().addListener(new ButtonActiveHandler());
+        FlowPane flowPane = new FlowPane(showPath, listView);
+
+        pathLibraryStage.setOnCloseRequest((event) -> {
+            closeStage(pathLibraryStage);
+        });
+
+        setupWindow(pathLibraryStage, "Path Library", flowPane, 250, 400);
+    }
+  }
+
+  public class ButtonActiveHandler implements ChangeListener<String> {
+      @Override
+      public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+          showPath.setDisable(false);
+      }
+  }
+  public class ShowPathButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+          closeStage(pathLibraryStage);
+
+      }
+  }
+
   public class AddCityButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent actionEvent) {
@@ -156,15 +222,18 @@ public class Gui extends Application {
       public void handle(ActionEvent e) {
           Stage linkCitiesStage = new Stage();
           FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to link.");
-
-          HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
-          TextField city1 = new TextField(); TextField city2 = new TextField();
-          city1.setPromptText("City 1"); city2.setPromptText("City 2");
-          city1.setPrefWidth(75); city2.setPrefWidth(75);
-          textFieldBox.getChildren().addAll(city1, city2);
-          flowPane.getChildren().add(1,textFieldBox);
-
+          flowPane.getChildren().add(1, createTwoTextField("City 1", "City 2"));
           setupWindow(linkCitiesStage, "Link Cities", flowPane, 250, 150);
+      }
+  }
+
+  public class CreatePathButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+          Stage createPathStage = new Stage();
+          FlowPane flowPane = createFlowPane(createPathStage, new Confirming("Create Path", createPathStage),"Write the names of the two cities that you\nwould like find a path between.");
+          flowPane.getChildren().add(1, createTwoTextField("Start", "Destination"));
+          setupWindow(createPathStage, "Create Path", flowPane, 250, 150);
       }
   }
 
@@ -174,7 +243,7 @@ public class Gui extends Application {
           Stage removeCityStage = new Stage();
           FlowPane flowPane = createFlowPane(removeCityStage, new Confirming("RemoveCity", removeCityStage), "Write city to remove");
           TextField removeCity  = new TextField(); removeCity.setPromptText("Enter city name"); removeCity.setPrefWidth(10);
-          flowPane.getChildren().add(1, removeCity);
+          flowPane.getChildren().add(1, removeCity); textfield1 = removeCity;
           setupWindow(removeCityStage, "Remove City", flowPane,250, 150);
       }
   }
@@ -188,7 +257,7 @@ public class Gui extends Application {
   }
 
   public void openMenu(){
-      for(Button button : buttons){
+      for(Control button : buttons){
           button.setDisable(true);
       }
   }
@@ -196,9 +265,16 @@ public class Gui extends Application {
   public void closeStage(Stage stage) {
       if(stage != null){stage.close();}
 
-      for(Button button : buttons){
+      for(Control button : buttons){
           button.setDisable(false);
       }
+  }
+
+  public void showInformation(String message, String title){
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      alert.setTitle(title);
+      alert.setHeaderText(message);
+      alert.showAndWait();
   }
 
   public void setupWindow(Stage stage, String stageTitle, Pane pane, double x, double y) {
@@ -227,6 +303,18 @@ public class Gui extends Application {
           closeStage(stage);
       });
       return flowPane;
+  }
+
+  private HBox createTwoTextField(String text1, String text2){
+      HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
+      TextField field1 = new TextField(); TextField field2 = new TextField();
+      field1.setPromptText(text1); field2.setPromptText(text2);
+      field1.setPrefWidth(75); field2.setPrefWidth(75);
+      textFieldBox.getChildren().addAll(field1, field2);
+      textfield1 = field1;
+      textfield2 = field2;
+
+      return textFieldBox;
   }
 
   public class Confirming implements EventHandler<ActionEvent> {
