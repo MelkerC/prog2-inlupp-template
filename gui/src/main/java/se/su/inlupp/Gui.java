@@ -69,9 +69,9 @@ public class Gui extends Application {
 
       //MenuButtons
       MenuItem open = new MenuItem("Open");
-      open.setOnAction(new openHandler());
+      open.setOnAction(new OpenHandler());
       MenuItem save = new MenuItem("Save");
-      save.setOnAction(new saveHandler());
+      save.setOnAction(new SaveHandler());
       MenuItem exit = new MenuItem("Exit");
       exit.setOnAction((arg) ->{
           saveAndExit();
@@ -121,7 +121,7 @@ public class Gui extends Application {
       }
   }
 
-  public class openHandler implements EventHandler<ActionEvent> {
+  public class OpenHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
@@ -130,7 +130,7 @@ public class Gui extends Application {
     }
   }
 
-  public class saveHandler implements EventHandler<ActionEvent> {
+  public class SaveHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
@@ -232,8 +232,18 @@ public class Gui extends Application {
       public void handle(ActionEvent actionEvent) {
           Stage createPathStage = new Stage();
           FlowPane flowPane = createFlowPane(createPathStage, new Confirming("Create Path", createPathStage),"Write the names of the two cities that you\nwould like find a path between.");
-          flowPane.getChildren().add(1, createTwoTextField("Start", "Destination"));
-          setupWindow(createPathStage, "Create Path", flowPane, 250, 150);
+
+          VBox vBox = new VBox(); vBox.setSpacing(10);
+
+          ToggleGroup algorithm = new ToggleGroup();
+          RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
+          RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
+          RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
+          algorithm.getToggles().addAll(dijkstra, bfs, dfs);
+          vBox.getChildren().addAll(createTwoTextField("Start", "Destination"), new Text("Choose search algorithm."), dijkstra, bfs, dfs);
+          flowPane.getChildren().add(1, vBox);
+
+          setupWindow(createPathStage, "Create Path", flowPane, 250, 350);
       }
   }
 

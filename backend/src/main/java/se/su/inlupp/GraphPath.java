@@ -4,12 +4,11 @@ import java.util.*;
 
 public class GraphPath<T> implements Path<T>{
 
-    private String pathName;
-
     private final List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
 
-
+    private String pathName;
+    private int length;
 
     public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges){
         this.pathNodes.addAll(pathNodes);
@@ -34,6 +33,14 @@ public class GraphPath<T> implements Path<T>{
             totalWeight += edge.getWeight();
         }
         return totalWeight;
+    }
+
+    public void setLength(int length){
+        this.length = length;
+    }
+    
+    public int getLength(){
+        return length;
     }
 
     @Override
