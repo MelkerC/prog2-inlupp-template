@@ -30,8 +30,6 @@ import java.util.Optional;
 
 import static javafx.application.Platform.exit;
 
-
-
 public class Gui extends Application {
     private final BackendControl backendControl = new BackendControl();
     private final SpawnNode spawnNode = new SpawnNode();
@@ -380,6 +378,10 @@ public class Gui extends Application {
               alert.showAndWait();
           }
       }
+  }
+
+  public BackendControl getBackend(){
+      return backendControl;
   }
 
   public static void main(String[] args) {

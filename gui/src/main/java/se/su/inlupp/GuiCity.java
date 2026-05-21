@@ -137,6 +137,8 @@ public class GuiCity extends BorderPane {
             cityNameTag = new Text(cityName);
             gui.removeButton(createCity);
 
+            gui.getBackend().addCity(cityName);
+
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);
             vBox.getChildren().addAll(cityNameTag, visitedCheck);

@@ -18,13 +18,14 @@ public class BackendControl {
     private final PathFinder<City> pathFinderDFS = new DFSPathFinder<>();
     private final PathFinder<City> pathFinderDijkstra = new DijkstraPathFinder<>();
 
-    private String addCity(String cityName){
+    public void addCity(String cityName){
+        /*
         if(citiesGraph.getCityNames().contains(cityName)){
-            return String.format("%s has not been added beacause %s already exists in the graph.\n", cityName, cityName);
-        }
+            //return String.format("%s has not been added beacause %s already exists in the graph.\n", cityName, cityName);
+        } */
+        System.out.println(cityName);
         citiesGraph.addCityName(cityName);
         citiesGraph.add(new City(cityName, false));
-        return String.format("%s has been added to the graph.\n", cityName);
     }
 
     private String removeCity(City city){

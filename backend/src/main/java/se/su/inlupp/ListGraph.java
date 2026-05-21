@@ -4,8 +4,8 @@ import java.util.*;
 
 public class ListGraph <T> implements Graph<T>{
 
-    private final Map<T, Set<Edge<T>>> graph = new HashMap<>();
-    private final Set<String> cityNames = new HashSet<>();
+    private Map<T, Set<Edge<T>>> graph = new HashMap<>();
+    private Set<String> cityNames = new HashSet<>();
 
     public Iterator<T> iterator(){
 
@@ -13,8 +13,9 @@ public class ListGraph <T> implements Graph<T>{
     }
 
     @Override
-    public final void add(T node) {
+    public void add(T node) {
         graph.putIfAbsent(node, new HashSet<>());
+        System.out.println(graph.toString());
     }
 
     @Override
@@ -99,7 +100,13 @@ public class ListGraph <T> implements Graph<T>{
         }
     }
 
-    public Set<String> getCityNames(){return cityNames;}
+    public Set<String> getCityNames(){
+        if(graph.isEmpty()){
+            return new HashSet<>();
+        }else{
+            return cityNames;
+        }
+    }
 
     public void addCityName(String cityName){cityNames.add(cityName);}
 
