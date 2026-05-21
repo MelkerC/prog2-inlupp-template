@@ -4,7 +4,7 @@ import java.util.*;
 
 public class GraphPath<T> implements Path<T>{
 
-    private final List<Edge<T>> pathEdges =  new LinkedList<>();
+    private List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
 
     private String pathName;
@@ -13,7 +13,6 @@ public class GraphPath<T> implements Path<T>{
     public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges){
         this.pathNodes.addAll(pathNodes);
         this.pathEdges.addAll(pathEdges);
-
     }
 
     @Override

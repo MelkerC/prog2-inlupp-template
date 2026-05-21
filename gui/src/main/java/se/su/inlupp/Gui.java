@@ -362,12 +362,14 @@ public class Gui extends Application {
                       return;
                   }
 
+                  GuiCity temp = new GuiCity(0,0, Gui.this);
                   for(GuiCity guiCity : guiCities){
 
-                      if(guiCity.getCityName().equals(textfield1.getText())){guiCity.removeCity();}
+                      if(guiCity.getCityName().equals(textfield1.getText())){temp = guiCity;}
                   }
-                  System.out.println("Removing city");
-
+                  temp.removeCity();
+                  guiCities.remove(temp);
+                  System.out.println(guiCities);
                   break;
               case "LinkCities":
                   System.out.println("Linking cities");

@@ -35,6 +35,11 @@ public class ListGraph <T> implements Graph<T>{
 
     @Override
     public void connect(T node1, T node2, String name, int weight) {
+
+        if(!hasNode(node1) || !hasNode(node2)){ throw new NoSuchElementException();}
+        if(isNeighbor(node1, node2)){ throw new IllegalStateException();}
+        if(weight < 0){throw new IllegalArgumentException();}
+
         this.add(node1);
         this.add(node2);
 
@@ -47,9 +52,10 @@ public class ListGraph <T> implements Graph<T>{
 
     @Override
     public void disconnect(T node1, T node2) {
-        if(!hasNode(node1) || !hasNode(node2)){
-            throw new NoSuchElementException("At least one node is not connected");
-        }
+
+        if(!hasNode(node1) || !hasNode(node2)){throw new NoSuchElementException("At least one node is not connected");}
+        if(!isNeighbor(node1, node2)){ throw new IllegalStateException();}
+
         graph.get(node1).remove(getEdgeBetween(node1, node2));
         graph.get(node2).remove(getEdgeBetween(node2, node1));
     }
@@ -68,16 +74,23 @@ public class ListGraph <T> implements Graph<T>{
     public Set<T> getNodes() {return graph.keySet();}
 
     @Override
-    public Collection<Edge<T>> getEdgesFrom(T node) {return graph.get(node);}
+    public Collection<Edge<T>> getEdgesFrom(T node) {
+        if(!hasNode(node)){throw new NoSuchElementException();}
+        return graph.get(node);
+    }
 
     @Override
     public Edge<T> getEdgeBetween(T node1, T node2) {
+        //if(!isNeighbor(node1, node2)){throw new NoSuchElementException();}
+        if(!hasNode(node1) || !hasNode(node2)){throw new NoSuchElementException();}
+
         for(Edge<T> edge: graph.get(node1)){
             if(edge.getDestination().equals(node2)){
                 return edge;
             }
         }
         return null;
+
     }
 
     public boolean hasPath(T node1, T node2){
@@ -106,6 +119,15 @@ public class ListGraph <T> implements Graph<T>{
         }else{
             return cityNames;
         }
+    }
+
+    public boolean isNeighbor(T node1, T node2){
+        for(Edge<T> edge: graph.get(node1)){
+            if(edge.getDestination().equals(node2)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addCityName(String cityName){cityNames.add(cityName);}

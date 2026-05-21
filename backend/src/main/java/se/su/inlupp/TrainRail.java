@@ -36,6 +36,6 @@ public class TrainRail<T> implements Edge<T>{
 
     @Override
     public String toString(){
-        return String.format("%s goes to %s and is %d km long\n", name, destination.toString(), weight);
+        return String.format("till %s med %s tar %d", destination, name, weight);
     }
 }

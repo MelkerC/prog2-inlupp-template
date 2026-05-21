@@ -24,25 +24,31 @@ public class BFSPathFinder <T> implements PathFinder<T>{
             }
         }
 
+        if(!connections.containsKey(to)){
+            return null;
+        }
+
         LinkedList<Edge<T>> path = new LinkedList<>();
 
         T current = to;
 
         while (current != null && !current.equals(from)){
             T next = connections.get(current);
-            Edge<T> edge = graph.getEdgeBetween(current, next);
+            Edge<T> edge = graph.getEdgeBetween(next, current);
             path.addFirst(edge);
             current = next;
         }
 
         LinkedList<T> newPath = new LinkedList<>();
+        newPath.add(from);
 
         for(Edge<T> edge: path){
             newPath.add(edge.getDestination());
         }
 
-        newPath.addLast(to);
+        //newPath.addLast(to);
 
         return new GraphPath<>(newPath, path);
+
     }
 }
