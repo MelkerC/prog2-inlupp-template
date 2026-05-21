@@ -1,5 +1,7 @@
 package se.su.inlupp;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,8 @@ public class BackendControl {
     //Memory data
     private ListGraph<City> citiesGraph = new ListGraph<>();
     private PathLibrary<TrainRail<City>> pathLibrary = new PathLibrary();
+    private FileReader fileReader;
+    private FileWriter fileWriter;
 
     //Pathfinders
     private final PathFinder<City> pathFinderBFS = new BFSPathFinder<>();
