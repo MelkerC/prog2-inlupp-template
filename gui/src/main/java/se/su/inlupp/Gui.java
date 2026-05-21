@@ -351,17 +351,30 @@ public class Gui extends Application {
       }
       @Override
       public void handle(ActionEvent actionEvent) {
-          closeStage(stage);
-
           switch(task){
               case "RemoveCity":
+                  if(textfield1.getText().isEmpty()){
+                      showInformation("You need to fill in the textfield.", "Error");
+                      return;
+                  }
+                  if(backendControl.removeCity(textfield1.getText())){
+                      showInformation("That city does not exist.", "Error");
+                      return;
+                  }
+
+                  for(GuiCity guiCity : guiCities){
+
+                      if(guiCity.getCityName().equals(textfield1.getText())){guiCity.removeCity();}
+                  }
                   System.out.println("Removing city");
+
                   break;
               case "LinkCities":
                   System.out.println("Linking cities");
                   break;
 
           }
+          closeStage(stage);
       }
   }
 

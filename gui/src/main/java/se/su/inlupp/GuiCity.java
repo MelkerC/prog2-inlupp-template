@@ -127,23 +127,27 @@ public class GuiCity extends BorderPane {
                 alert.showAndWait();
             }else{
                 createCityNode(cityName.getText());
-                closePopup(popUpWindow);
             }
         }
 
         public void createCityNode(String cityName) {
+            if(!gui.getBackend().addCity(cityName)){
+                gui.showInformation("That city already exists!", "Error");
+                return;
+            }
+
+
             node.getChildren().clear();
             circle.setFill(Color.GREEN);
             cityNameTag = new Text(cityName);
             gui.removeButton(createCity);
-
-            gui.getBackend().addCity(cityName);
 
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);
             vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
             node.getChildren().addAll(circle, vBox);
+            closePopup(popUpWindow);
         }
 
         public void closePopup(Stage popUpWindow) {
@@ -169,5 +173,9 @@ public class GuiCity extends BorderPane {
 
             gui.setupWindow(popUpWindow, "Create City", flowPane, 250, 300);
         }
+    }
+
+    public String getCityName(){
+        return cityNameTag.getText();
     }
 }

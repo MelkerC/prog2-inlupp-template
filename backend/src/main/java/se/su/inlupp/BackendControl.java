@@ -18,23 +18,26 @@ public class BackendControl {
     private final PathFinder<City> pathFinderDFS = new DFSPathFinder<>();
     private final PathFinder<City> pathFinderDijkstra = new DijkstraPathFinder<>();
 
-    public void addCity(String cityName){
-        /*
+    public boolean addCity(String cityName){
         if(citiesGraph.getCityNames().contains(cityName)){
-            //return String.format("%s has not been added beacause %s already exists in the graph.\n", cityName, cityName);
-        } */
-        System.out.println(cityName);
+            return false;
+        }
         citiesGraph.addCityName(cityName);
         citiesGraph.add(new City(cityName, false));
+        return true;
     }
 
-    private String removeCity(City city){
-        if(!citiesGraph.getCityNames().contains(city.getName())){
-            return "The graph does not contain the given city.";
+    public boolean removeCity(String cityName){
+        if(citiesGraph.getCityNames().contains(cityName)){
+            return false;
         }
-        citiesGraph.removeCityName(city.getName());
-        citiesGraph.remove(city);
-        return String.format("%s has been removed from the graph.\n", city.getName());
+
+        citiesGraph.removeCityName(cityName);
+
+        for(City c : citiesGraph.getNodes()){
+            if(c.getName().equals(cityName)){citiesGraph.remove(c);}
+        }
+        return true;
     }
 
     public List<String> getPaths(){
