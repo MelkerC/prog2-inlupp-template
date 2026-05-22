@@ -10,7 +10,7 @@ public class BackendControl {
 
     //Memory data
     private final ListGraph<City> citiesGraph = new ListGraph<>();
-    private final PathLibrary<TrainRail<City>> pathLibrary = new PathLibrary<>();
+    private final PathLibrary<City> pathLibrary = new PathLibrary<>();
     private FileReader fileReader;
     private FileWriter fileWriter;
 
@@ -18,6 +18,8 @@ public class BackendControl {
     private final PathFinder<City> pathFinderBFS = new BFSPathFinder<>();
     private final PathFinder<City> pathFinderDFS = new DFSPathFinder<>();
     private final PathFinder<City> pathFinderDijkstra = new DijkstraPathFinder<>();
+    private final ArrayList<PathFinder<City>> pathFinders = new ArrayList<>(List.of(pathFinderDijkstra, pathFinderBFS, pathFinderDFS));
+
 
     public boolean addCity(String cityName){
         if(citiesGraph.getCityNames().contains(cityName)){
@@ -55,8 +57,19 @@ public class BackendControl {
         return true;
     }
 
-    public boolean createPath(String city1, String city2){
+    public boolean createPath(String city1, String city2, int algoritihm){
+        GraphPath<City> newPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(city1), getCity(city2));
+
+        if(newPath == null){
+            return false;
+        }
+
+        pathLibrary.addPath(newPath.toString(), newPath);
         return true;
+    }
+
+    public void removePath(GraphPath<City> path){
+        pathLibrary.removePath(path.toString());
     }
 
     private City getCity(String cityName){
@@ -70,7 +83,7 @@ public class BackendControl {
         return new ArrayList<>(pathLibrary.getAllPaths().keySet());
     }
 
-    private String addConnection(City city1, City city2, int weight){
-        return null;
+    public GraphPath<City> getPathByName(String pathName){
+        return pathLibrary.getPath(pathName);
     }
 }

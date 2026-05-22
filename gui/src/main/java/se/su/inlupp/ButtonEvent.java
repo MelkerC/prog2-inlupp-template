@@ -19,9 +19,15 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public class ButtonEvent {
 
+    private Map<String, ActionEvent> buttonEvents;
+
+    public ActionEvent getEvent(String event){
+        return buttonEvents.get(event);
+    }
     /*
     public void addButton(Button button){
         buttons.add(button);

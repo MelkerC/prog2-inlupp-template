@@ -40,6 +40,7 @@ public class Gui extends Application {
     private final ArrayList<GuiCity> guiCities = new ArrayList<>();
     private final ArrayList<Control> buttons = new ArrayList<>();
     private final FileChooser fileChooser = new FileChooser();
+    private final ToggleGroup algorithm = new ToggleGroup();
 
     private ObservableList<String> pathList;
 
@@ -52,6 +53,7 @@ public class Gui extends Application {
     private TextField textfield3 = new TextField();
     private TextField textfield4 = new TextField();
     private Button addCity, screenShotButton, removeCity, disconnectButton;
+    private ListView<String> listView;
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
@@ -111,6 +113,7 @@ public class Gui extends Application {
       linkCities.setOnAction(new LinkCitiesButtonHandler());
       findPath.setOnAction(new CreatePathButtonHandler());
       pathLibrary.setOnAction(new PathLibraryButtonHandler());
+
 
       return new Scene(borderPane, 1000, 500);
   }
@@ -193,6 +196,9 @@ public class Gui extends Application {
   public class PathLibraryButtonHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent e) {
+
+        pathList = FXCollections.observableArrayList(backendControl.getPaths());
+
         try{
             if(pathList.isEmpty()){
 
@@ -204,24 +210,22 @@ public class Gui extends Application {
             return;
         }
 
-        pathList = FXCollections.observableArrayList(backendControl.getPaths());
-
-
         openMenu();
 
         pathLibraryStage = new Stage();
 
-        pathList = FXCollections.observableArrayList("Stockholm -> Paris", "Berlin -> Madrid", "Oslo -> Rom");
-
         buttonBox = new HBox();
-        ListView<String> listView = new ListView<>(pathList);
+        listView = new ListView<>(pathList);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         Button deletePath = new Button("Delete Path");
         Button showPath = new Button("Show Path");
         buttonBox.setDisable(true);
-        deletePath.setOnAction(new DeletePathButtonHandler());
+        deletePath.setOnAction((event) ->{
+            showConfirmation("Are you sure you want to delete the selected path?", "Delete Path");
+        });
         showPath.setOnAction(new ShowPathButtonHandler());
         buttonBox.getChildren().addAll(showPath, deletePath);
+        listView.setPrefHeight(350);
         listView.getSelectionModel().selectedItemProperty().addListener(new ButtonActiveHandler());
         FlowPane flowPane = new FlowPane(buttonBox, listView);
 
@@ -229,7 +233,7 @@ public class Gui extends Application {
             closeStage(pathLibraryStage);
         });
 
-        setupWindow(pathLibraryStage, "Path Library", flowPane, 250, 400);
+        setupWindow(pathLibraryStage, "Path Library", flowPane, 350, 400);
     }
   }
 
@@ -237,17 +241,6 @@ public class Gui extends Application {
       @Override
       public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
           buttonBox.setDisable(false);
-      }
-  }
-
-  public class DeletePathButtonHandler implements EventHandler<ActionEvent> {
-      @Override
-      public void handle(ActionEvent actionEvent) {
-          Alert confirmDelete = new Alert(Alert.AlertType.CONFIRMATION);
-          confirmDelete.setTitle("Confirm Delete");
-          confirmDelete.setHeaderText("Delete?");
-          confirmDelete.setContentText("Are you sure?");
-          confirmDelete.showAndWait();
       }
   }
 
@@ -317,10 +310,10 @@ public class Gui extends Application {
 
           VBox vBox = new VBox(); vBox.setSpacing(10);
 
-          ToggleGroup algorithm = new ToggleGroup();
-          RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
-          RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
-          RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
+
+          RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)"); dijkstra.setUserData(0);
+          RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)"); bfs.setUserData(1);
+          RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)"); dfs.setUserData(2);
           algorithm.getToggles().addAll(dijkstra, bfs, dfs);
           vBox.getChildren().addAll(createTwoTextField("Start", "Destination"), new Text("Choose search algorithm."), dijkstra, bfs, dfs);
           flowPane.getChildren().add(1, vBox);
@@ -367,6 +360,26 @@ public class Gui extends Application {
       alert.setTitle(title);
       alert.setHeaderText(message);
       alert.showAndWait();
+  }
+
+  public void showConfirmation(String message, String title){
+      Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+      confirm.setTitle(title);
+      confirm.setHeaderText("Confirmation");
+      confirm.setContentText(message);
+
+      Optional<ButtonType> okButton = confirm.showAndWait();
+
+      if(okButton.get().equals(ButtonType.OK)){
+          switch(title){
+              case "Delete Path":
+                  backendControl.removePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()));
+                  System.out.println("Delete Path");
+                  break;
+          }
+      }
+
+      //confirm.showAndWait();
   }
 
   public void setupWindow(Stage stage, String stageTitle, Pane pane, double x, double y) {
@@ -458,17 +471,37 @@ public class Gui extends Application {
                       return;
                   }
 
-                  if(backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), Integer.parseInt(textfield4.getText()))){
-
-                      //Här skapar den en  gui element  för kanten
+                  if(textfield1.getText().equals(textfield2.getText())){
+                      showInformation("You can only connect two diffrent cities.", "Error");
+                      return;
                   }
 
+                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), Integer.parseInt(textfield4.getText()))){
+                      showInformation("The cities could not be connected. Either the cities do not exist or they are already connected.", "Error");
+                      return;
+                  }
+                  //Här skapar den en  gui element  för kanten
                   break;
 
               case "Disconnect":
                   break;
 
               case "CreatePath":
+                  if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
+                      showInformation("You need to fill in the textfields.", "Error");
+                      return;
+                  }
+                  if(algorithm.getSelectedToggle() == null){
+                      showInformation("You need to select an algorithm.", "Error");
+                      return;
+                  }
+
+                  if(!backendControl.createPath(textfield1.getText(), textfield2.getText(), (int)algorithm.getSelectedToggle().getUserData())){
+                      showInformation("The path could not be created.", "Success");
+                  }
+
+                  //Markera pathen visuellt, samma metod som kommer användas när man kollar i biblioteket
+
                   break;
 
 

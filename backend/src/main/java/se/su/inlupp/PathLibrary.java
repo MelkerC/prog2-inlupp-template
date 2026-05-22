@@ -21,6 +21,10 @@ public class PathLibrary <T>{
         paths.put(pathName,path);
     }
 
+    public void removePath(String pathName){
+        paths.remove(pathName);
+    }
+
     public void removePathsWithNode(T node){
         //Om jag har tid gör jag en metod som updaterar specifikt alla paths som innehåller noden
     }
