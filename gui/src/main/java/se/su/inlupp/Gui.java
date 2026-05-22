@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -23,9 +24,9 @@ import javafx.scene.control.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 
 import static javafx.application.Platform.exit;
@@ -46,7 +47,7 @@ public class Gui extends Application {
     private Stage stage, pathLibraryStage;
     private TextField textfield1 = new TextField();
     private TextField textfield2 = new TextField();
-    private Button addCity, screenShotButton, removeCity;
+    private Button addCity, screenShotButton, removeCity, disconnectButton;
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
@@ -56,6 +57,8 @@ public class Gui extends Application {
 
   public Scene buildTrainScene(Stage stage) {
       this.stage = stage;
+
+      this.stage.setOnCloseRequest(this::saveAndExit);
 
       buttons.add(menuBar);
       //Paneler
@@ -72,22 +75,21 @@ public class Gui extends Application {
       MenuItem save = new MenuItem("Save");
       save.setOnAction(new SaveHandler());
       MenuItem exit = new MenuItem("Exit");
-      exit.setOnAction((arg) ->{
-          saveAndExit();
-      });
+      exit.setOnAction(this::saveAndExit);
       menu.getItems().addAll(open, save, exit);
 
       //Buttons
       addCity = new Button("Add City");buttons.add(addCity);
       removeCity = new Button("Remove City");buttons.add(removeCity);
       screenShotButton = new Button("Save Screenshot");buttons.add(screenShotButton);
+      disconnectButton = new Button("Disconnect");buttons.add(disconnectButton);
       Button pathLibrary = new Button("Path Library");buttons.add(pathLibrary);
       Button linkCities = new Button("Link Cities");buttons.add(linkCities);
       Button findPath = new Button("Find Path");buttons.add(findPath);
 
       //Placering
       borderPane.setCenter(graphArea);
-      lowerScreenMenu.getChildren().addAll(addCity, removeCity, linkCities, findPath, pathLibrary);
+      lowerScreenMenu.getChildren().addAll(addCity, removeCity, linkCities, disconnectButton, findPath, pathLibrary);
       lowerScreenMenu.setAlignment(Pos.CENTER); lowerScreenMenu.setSpacing(10);
       lowerScreenMenu.setStyle("-fx-background-color: green;");
       upperScreenMenu.getChildren().addAll(menuBar, screenShotButton);
@@ -101,6 +103,7 @@ public class Gui extends Application {
       addCity.setOnAction(new AddCityButtonHandler());
       removeCity.setOnAction(new RemoveCityButtonHandler());
       screenShotButton.setOnAction(new SaveScreenShotButtonHandler());
+      disconnectButton.setOnAction(new DisconnectButtonHandler());
       linkCities.setOnAction(new LinkCitiesButtonHandler());
       findPath.setOnAction(new CreatePathButtonHandler());
       pathLibrary.setOnAction(new PathLibraryButtonHandler());
@@ -108,7 +111,7 @@ public class Gui extends Application {
       return new Scene(borderPane, 1000, 500);
   }
 
-  public void saveAndExit() {
+  public void saveAndExit(Event e) {
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.setTitle("Save and Exit");
       alert.setHeaderText("You are about to exit without saving. Any unsaved data will get lost :(");
@@ -118,6 +121,10 @@ public class Gui extends Application {
       if(okButton.get().equals(ButtonType.OK)){
           exit();
       }
+
+      if(okButton.get().equals(ButtonType.CANCEL)){
+          e.consume();
+      }
   }
 
   public class OpenHandler implements EventHandler<ActionEvent> {
@@ -125,7 +132,16 @@ public class Gui extends Application {
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
         File openFile = fileChooser.showOpenDialog(stage);
-        System.out.println("Opening file: " + openFile);
+        try{
+            FileInputStream fis = new FileInputStream(openFile);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            //graphArea = (Map)ois.readObject();
+
+        }catch(IOException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+            alert.setTitle("Error");
+            alert.showAndWait();
+        }
     }
   }
 
@@ -133,9 +149,26 @@ public class Gui extends Application {
     @Override
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
-        File openFile = fileChooser.showSaveDialog(stage);
-        System.out.println("Saving file: " + openFile);
+        File saveFile = fileChooser.showSaveDialog(stage);
+        try{
+            FileOutputStream fos = new FileOutputStream(saveFile);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(graphArea);//här sparas grafen
+            oos.close();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
+  }
+
+  public void spawnNodeFromSave(double x, double y, String name, boolean visited) {
+      GuiCity city = new GuiCity(x, y, Gui.this);
+      guiCities.add(city);
+      graphArea.getChildren().add(city);
+      city.createCityNode(name);
+      closeStage(null);
   }
 
   public class SpawnNode implements EventHandler<MouseEvent> {
@@ -156,8 +189,6 @@ public class Gui extends Application {
   public class PathLibraryButtonHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent e) {
-
-        /*
         try{
             if(pathList.isEmpty()){
 
@@ -169,8 +200,8 @@ public class Gui extends Application {
             return;
         }
 
-        pathList = FXCollections.observableArrayList(mainProgram.getPaths()); Denna är till slutprogrammet
-        */
+        pathList = FXCollections.observableArrayList(backendControl.getPaths());
+
 
         openMenu();
 
@@ -231,11 +262,21 @@ public class Gui extends Application {
       }
   }
 
+    public class DisconnectButtonHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent actionEvent) {
+            Stage disconnectStage = new Stage();
+            FlowPane flowPane = createFlowPane(disconnectStage, new Confirming("Disconnect", disconnectStage),"Write the names of the two cities\nthat you would like to disconnect.");
+            flowPane.getChildren().add(1, createTwoTextField("City 1", "City 2"));
+            setupWindow(disconnectStage, "Link Cities", flowPane, 250, 150);
+        }
+    }
+
   public class LinkCitiesButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent e) {
           Stage linkCitiesStage = new Stage();
-          FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to link.");
+          FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to connect.");
           flowPane.getChildren().add(1, createTwoTextField("City 1", "City 2"));
           setupWindow(linkCitiesStage, "Link Cities", flowPane, 250, 150);
       }
@@ -357,6 +398,8 @@ public class Gui extends Application {
                       showInformation("You need to fill in the textfield.", "Error");
                       return;
                   }
+
+                  
                   if(backendControl.removeCity(textfield1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
@@ -364,12 +407,11 @@ public class Gui extends Application {
 
                   GuiCity temp = new GuiCity(0,0, Gui.this);
                   for(GuiCity guiCity : guiCities){
-
+                      if(guiCity.getCityName() == null)continue;
                       if(guiCity.getCityName().equals(textfield1.getText())){temp = guiCity;}
                   }
                   temp.removeCity();
                   guiCities.remove(temp);
-                  System.out.println(guiCities);
                   break;
               case "LinkCities":
                   System.out.println("Linking cities");

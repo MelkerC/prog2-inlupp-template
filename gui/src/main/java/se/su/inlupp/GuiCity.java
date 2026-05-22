@@ -117,6 +117,29 @@ public class GuiCity extends BorderPane {
         }
     }
 
+    public void createCityNode(String cityName) {
+        if(!gui.getBackend().addCity(cityName)){
+            gui.showInformation("That city already exists!", "Error");
+            return;
+        }
+        node.getChildren().clear();
+        circle.setFill(Color.GREEN);
+        cityNameTag = new Text(cityName);
+        gui.removeButton(createCity);
+
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.getChildren().addAll(cityNameTag, visitedCheck);
+
+        node.getChildren().addAll(circle, vBox);
+        closePopup(popUpWindow);
+    }
+
+    public void closePopup(Stage popUpWindow) {
+        createCity.setDisable(false);
+        gui.closeStage(popUpWindow);
+    }
+
     public class Confirming implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent actionEvent) {
@@ -128,31 +151,6 @@ public class GuiCity extends BorderPane {
             }else{
                 createCityNode(cityName.getText());
             }
-        }
-
-        public void createCityNode(String cityName) {
-            if(!gui.getBackend().addCity(cityName)){
-                gui.showInformation("That city already exists!", "Error");
-                return;
-            }
-
-
-            node.getChildren().clear();
-            circle.setFill(Color.GREEN);
-            cityNameTag = new Text(cityName);
-            gui.removeButton(createCity);
-
-            VBox vBox = new VBox();
-            vBox.setAlignment(Pos.CENTER);
-            vBox.getChildren().addAll(cityNameTag, visitedCheck);
-
-            node.getChildren().addAll(circle, vBox);
-            closePopup(popUpWindow);
-        }
-
-        public void closePopup(Stage popUpWindow) {
-            createCity.setDisable(false);
-            gui.closeStage(popUpWindow);
         }
     }
 
@@ -176,6 +174,7 @@ public class GuiCity extends BorderPane {
     }
 
     public String getCityName(){
+        if(cityNameTag == null){return null;}
         return cityNameTag.getText();
     }
 }
