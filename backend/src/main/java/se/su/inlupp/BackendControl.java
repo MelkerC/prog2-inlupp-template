@@ -4,12 +4,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class BackendControl {
 
     //Memory data
-    private ListGraph<City> citiesGraph = new ListGraph<>();
-    private PathLibrary<TrainRail<City>> pathLibrary = new PathLibrary();
+    private final ListGraph<City> citiesGraph = new ListGraph<>();
+    private final PathLibrary<TrainRail<City>> pathLibrary = new PathLibrary<>();
     private FileReader fileReader;
     private FileWriter fileWriter;
 
@@ -38,6 +39,31 @@ public class BackendControl {
             if(c.getName().equals(cityName)){citiesGraph.remove(c);}
         }
         return true;
+    }
+
+    public boolean connectCities(String city1, String city2, String rail, int weight){
+
+        try{
+            citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
+        }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean disConnectCities(String city1, String city2){
+        return true;
+    }
+
+    public boolean createPath(String city1, String city2){
+        return true;
+    }
+
+    private City getCity(String cityName){
+        for(City c : citiesGraph.getNodes()){
+            if(c.getName().equals(cityName)){return c;}
+        }
+        return new City(cityName, false);
     }
 
     public List<String> getPaths(){

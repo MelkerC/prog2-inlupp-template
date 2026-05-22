@@ -21,6 +21,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
+import javafx.util.converter.IntegerStringConverter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -28,6 +29,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static javafx.application.Platform.exit;
 
@@ -47,6 +49,8 @@ public class Gui extends Application {
     private Stage stage, pathLibraryStage;
     private TextField textfield1 = new TextField();
     private TextField textfield2 = new TextField();
+    private TextField textfield3 = new TextField();
+    private TextField textfield4 = new TextField();
     private Button addCity, screenShotButton, removeCity, disconnectButton;
 
   public void start(Stage stage) {
@@ -276,9 +280,32 @@ public class Gui extends Application {
       @Override
       public void handle(ActionEvent e) {
           Stage linkCitiesStage = new Stage();
-          FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to connect.");
+          FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to connect and then\nset a name and a distance to the  rail.");
+
+          HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
+          TextField field3 = new TextField(); TextField field4 = new TextField();
+          field3.setPromptText("Rail name"); field4.setPromptText("Distance in km");
+          field3.setPrefWidth(75); field4.setPrefWidth(75);
+          textFieldBox.getChildren().addAll(field3, field4);
+          textfield3 = field3;
+          textfield4 = field4;
+
+          UnaryOperator<TextFormatter.Change> filter = change -> {
+              String text = change.getControlNewText();
+              if(text.matches("\\d*")){
+                  return change;
+              }
+              return null;
+          };
+
+          TextFormatter<Integer> formatter = new TextFormatter<>(new IntegerStringConverter(),null,filter);
+
+          textfield4.setTextFormatter(formatter);
+
+          flowPane.getChildren().add(1, textFieldBox);
+
           flowPane.getChildren().add(1, createTwoTextField("City 1", "City 2"));
-          setupWindow(linkCitiesStage, "Link Cities", flowPane, 250, 150);
+          setupWindow(linkCitiesStage, "Link Cities", flowPane, 250, 350);
       }
   }
 
@@ -286,7 +313,7 @@ public class Gui extends Application {
       @Override
       public void handle(ActionEvent actionEvent) {
           Stage createPathStage = new Stage();
-          FlowPane flowPane = createFlowPane(createPathStage, new Confirming("Create Path", createPathStage),"Write the names of the two cities that you\nwould like find a path between.");
+          FlowPane flowPane = createFlowPane(createPathStage, new Confirming("CreatePath", createPathStage),"Write the names of the two cities that you\nwould like find a path between.");
 
           VBox vBox = new VBox(); vBox.setSpacing(10);
 
@@ -399,7 +426,6 @@ public class Gui extends Application {
                       return;
                   }
 
-                  
                   if(backendControl.removeCity(textfield1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
@@ -413,9 +439,38 @@ public class Gui extends Application {
                   temp.removeCity();
                   guiCities.remove(temp);
                   break;
+
               case "LinkCities":
-                  System.out.println("Linking cities");
+                  if(textfield1.getText().isEmpty()){
+                      showInformation("Textfield one is empty. Write a city to connect.", "Error");
+                      return;
+                  }
+                  if(textfield2.getText().isEmpty()){
+                      showInformation("Textfield two is empty. Write a city to connect.", "Error");
+                      return;
+                  }
+                  if(textfield3.getText().isEmpty()){
+                      showInformation("Textfield three is empty. Write a name forthe rail.", "Error");
+                      return;
+                  }
+                  if(textfield4.getText().isEmpty()){
+                      showInformation("Textfield four is empty. Write a distance for the rail.", "Error");
+                      return;
+                  }
+
+                  if(backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), Integer.parseInt(textfield4.getText()))){
+
+                      //Här skapar den en  gui element  för kanten
+                  }
+
                   break;
+
+              case "Disconnect":
+                  break;
+
+              case "CreatePath":
+                  break;
+
 
           }
           closeStage(stage);
