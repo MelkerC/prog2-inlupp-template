@@ -173,6 +173,10 @@ public class GuiCity extends BorderPane {
         }
     }
 
+    public StackPane getNode() {
+        return node;
+    }
+
     public String getCityName(){
         if(cityNameTag == null){return null;}
         return cityNameTag.getText();

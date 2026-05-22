@@ -2,9 +2,7 @@ package se.su.inlupp;
 
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class BackendControl {
 
@@ -54,6 +52,12 @@ public class BackendControl {
     }
 
     public boolean disConnectCities(String city1, String city2){
+        try{
+            citiesGraph.disconnect(getCity(city1), getCity(city2));
+        }catch(NoSuchElementException | IllegalStateException e){
+            return false;
+        }
+
         return true;
     }
 
@@ -68,11 +72,24 @@ public class BackendControl {
         return true;
     }
 
+    public boolean hasNode(String cityName){
+        return citiesGraph.getNodes().contains(getCity(cityName));
+    }
+
     public void removePath(GraphPath<City> path){
         pathLibrary.removePath(path.toString());
     }
 
-    private City getCity(String cityName){
+    public List<String> getEdgesFrom(String cityName){
+        Collection<Edge<City>> temp  = citiesGraph.getEdgesFrom(getCity(cityName));
+        List<String> edgeNames = new ArrayList<>();
+        for(Edge<City> e : temp){
+            edgeNames.add(e.getName());
+        }
+        return edgeNames;
+    }
+
+    public City getCity(String cityName){
         for(City c : citiesGraph.getNodes()){
             if(c.getName().equals(cityName)){return c;}
         }
@@ -85,5 +102,9 @@ public class BackendControl {
 
     public GraphPath<City> getPathByName(String pathName){
         return pathLibrary.getPath(pathName);
+    }
+
+    public String getEdgeNameBetween(City city1, City city2){
+        return citiesGraph.getEdgeBetween(city1, city2).getName();
     }
 }

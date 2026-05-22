@@ -26,11 +26,10 @@ import javafx.util.converter.IntegerStringConverter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static java.lang.Integer.parseInt;
 import static javafx.application.Platform.exit;
 
 public class Gui extends Application {
@@ -38,6 +37,7 @@ public class Gui extends Application {
     private final SpawnNode spawnNode = new SpawnNode();
     private final MenuBar menuBar = new MenuBar();
     private final ArrayList<GuiCity> guiCities = new ArrayList<>();
+    private final Map<String, GuiRail> guiRails = new HashMap();
     private final ArrayList<Control> buttons = new ArrayList<>();
     private final FileChooser fileChooser = new FileChooser();
     private final ToggleGroup algorithm = new ToggleGroup();
@@ -439,6 +439,10 @@ public class Gui extends Application {
                       return;
                   }
 
+                  if(backendControl.hasNode(textfield1.getText())){
+                      removeTrainRails(backendControl.getEdgesFrom(textfield1.getText()));
+                  }
+
                   if(backendControl.removeCity(textfield1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
@@ -476,14 +480,40 @@ public class Gui extends Application {
                       return;
                   }
 
-                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), Integer.parseInt(textfield4.getText()))){
+                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), parseInt(textfield4.getText()))){
                       showInformation("The cities could not be connected. Either the cities do not exist or they are already connected.", "Error");
                       return;
                   }
+
+                  GuiCity temp1 = new GuiCity(0,0, Gui.this);
+                  GuiCity temp2 = new GuiCity(0,0, Gui.this);
+
+                  for(GuiCity guiCity : guiCities){
+                      if(guiCity.getCityName().equals(textfield1.getText())){temp1 = guiCity;}
+                      if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
+                  }
+
+                  GuiRail newRail = new GuiRail(temp1, temp2, textfield3.getText(), parseInt(textfield4.getText()));
+
+                  guiRails.put(textfield3.getText(), newRail);
+                  graphArea.getChildren().addFirst(newRail.getVBox());
+                  graphArea.getChildren().addFirst(newRail.getLine());
+
                   //Här skapar den en  gui element  för kanten
                   break;
 
               case "Disconnect":
+
+                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText()));
+                  if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
+                      showInformation("You need to fill in the textfields.", "Error");
+                      return;
+                  }
+                  if(!backendControl.disConnectCities(textfield1.getText(), textfield2.getText())){
+                      showInformation("Error", "Error");
+                  }
+                  removeTrainRails(List.of(tempRail));
+
                   break;
 
               case "CreatePath":
@@ -500,6 +530,7 @@ public class Gui extends Application {
                       showInformation("The path could not be created.", "Success");
                   }
 
+
                   //Markera pathen visuellt, samma metod som kommer användas när man kollar i biblioteket
 
                   break;
@@ -508,6 +539,16 @@ public class Gui extends Application {
           }
           closeStage(stage);
       }
+  }
+
+  private void removeTrainRails(List<String> railsToRemove){
+
+      for(String guiRail : railsToRemove){
+          graphArea.getChildren().remove(guiRails.get(guiRail).getVBox());
+          graphArea.getChildren().remove(guiRails.get(guiRail).getLine());
+          guiRails.remove(guiRail);
+      }
+
   }
 
   public class SaveScreenShotButtonHandler implements EventHandler<ActionEvent> {
