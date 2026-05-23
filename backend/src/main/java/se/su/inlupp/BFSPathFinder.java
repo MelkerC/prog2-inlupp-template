@@ -7,6 +7,8 @@ import java.util.Map;
 public class BFSPathFinder <T> implements PathFinder<T>{
     @Override
     public Path<T> findPath(Graph<T> graph, T from, T to) {
+        if(to == null || from == null) return null;
+
         Map<T, T> connections = new HashMap<>();
         connections.put(from, null);
         LinkedList<T> queue = new LinkedList<>();
