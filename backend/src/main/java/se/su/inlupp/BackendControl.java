@@ -29,12 +29,16 @@ public class BackendControl {
     }
 
     public boolean removeCity(String cityName){
-        if(citiesGraph.getCityNames().contains(cityName)){
+        if(!citiesGraph.getCityNames().contains(cityName)){
+            System.out.println(citiesGraph.getCityNames());
             return false;
         }
 
         for(City c : citiesGraph.getNodes()){
-            if(c.getName().equals(cityName)){citiesGraph.remove(c);}
+            if(c.getName().equals(cityName)){
+                citiesGraph.remove(c);
+                break;
+            }
         }
 
         citiesGraph.removeCityName(cityName);

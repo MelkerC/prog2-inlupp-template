@@ -451,7 +451,7 @@ public class Gui extends Application {
                       removeTrainRails(backendControl.getEdgesFrom(textfield1.getText()));
                   }
 
-                  if(backendControl.removeCity(textfield1.getText())){
+                  if(!backendControl.removeCity(textfield1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
                   }
