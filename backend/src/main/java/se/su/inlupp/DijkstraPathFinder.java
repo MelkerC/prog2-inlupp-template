@@ -56,8 +56,8 @@ public class DijkstraPathFinder <T> implements PathFinder<T>{
             edgePath.add(graph.getEdgeBetween(fromNode, toNode));
         }
 
-        GraphPath<T> newPath = new GraphPath<>(path, edgePath);
-        newPath.setLength(distance.get(to));
+        GraphPath<T> newPath = new GraphPath<>(path, edgePath, "Dijkstra");
+        newPath.setWeight(distance.get(to));
 
         return newPath;
     }

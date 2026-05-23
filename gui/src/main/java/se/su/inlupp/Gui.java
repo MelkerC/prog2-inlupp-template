@@ -54,11 +54,23 @@ public class Gui extends Application {
     private TextField textfield4 = new TextField();
     private Button addCity, screenShotButton, removeCity, disconnectButton;
     private ListView<String> listView;
+    private RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
+    private RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
+    private RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
+    private VBox algorithmsBox = new VBox();
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
+      setUpRadioButtons();
       stage.setScene(buildTrainScene(stage));
       stage.show();
+  }
+
+  private void setUpRadioButtons() {
+      dijkstra.setUserData(0);bfs.setUserData(1);dfs.setUserData(2);
+      algorithm.getToggles().addAll(dijkstra, bfs, dfs);
+      algorithmsBox.getChildren().addAll(dijkstra, bfs, dfs);
+      algorithmsBox.setSpacing(10);
   }
 
   public Scene buildTrainScene(Stage stage) {
@@ -219,12 +231,23 @@ public class Gui extends Application {
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         Button deletePath = new Button("Delete Path");
         Button showPath = new Button("Show Path");
+        Button changeAlgorithm = new Button("Change Algorithm");
         buttonBox.setDisable(true);
         deletePath.setOnAction((event) ->{
             showConfirmation("Are you sure you want to delete the selected path?", "Delete Path");
         });
-        showPath.setOnAction(new ShowPathButtonHandler());
-        buttonBox.getChildren().addAll(showPath, deletePath);
+        showPath.setOnAction((event) ->{
+            String pathDescription = backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()).getPathDescription();
+            showInformation("The following is the selected paths description.\n" + pathDescription, "Show Path");
+        });
+        changeAlgorithm.setOnAction((event) ->{
+            Stage changeAlgorithmStage = new Stage();
+            FlowPane flowPane = createFlowPane(changeAlgorithmStage, new Confirming("ChangeAlgorithm", changeAlgorithmStage), "Choose Algorithm to change to.");
+            flowPane.getChildren().add(1, algorithmsBox);
+
+            setupWindow(changeAlgorithmStage, "Change Algorithm", flowPane, 250, 150);
+        });
+        buttonBox.getChildren().addAll(showPath, deletePath,  changeAlgorithm);
         listView.setPrefHeight(350);
         listView.getSelectionModel().selectedItemProperty().addListener(new ButtonActiveHandler());
         FlowPane flowPane = new FlowPane(buttonBox, listView);
@@ -241,13 +264,6 @@ public class Gui extends Application {
       @Override
       public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
           buttonBox.setDisable(false);
-      }
-  }
-
-  public class ShowPathButtonHandler implements EventHandler<ActionEvent> {
-      @Override
-      public void handle(ActionEvent actionEvent) {
-          closeStage(pathLibraryStage);
       }
   }
 
@@ -307,15 +323,9 @@ public class Gui extends Application {
       public void handle(ActionEvent actionEvent) {
           Stage createPathStage = new Stage();
           FlowPane flowPane = createFlowPane(createPathStage, new Confirming("CreatePath", createPathStage),"Write the names of the two cities that you\nwould like find a path between.");
-
           VBox vBox = new VBox(); vBox.setSpacing(10);
 
-
-          RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)"); dijkstra.setUserData(0);
-          RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)"); bfs.setUserData(1);
-          RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)"); dfs.setUserData(2);
-          algorithm.getToggles().addAll(dijkstra, bfs, dfs);
-          vBox.getChildren().addAll(createTwoTextField("Start", "Destination"), new Text("Choose search algorithm."), dijkstra, bfs, dfs);
+          vBox.getChildren().addAll(createTwoTextField("Start", "Destination"), new Text("Choose search algorithm."), algorithmsBox);
           flowPane.getChildren().add(1, vBox);
 
           setupWindow(createPathStage, "Create Path", flowPane, 250, 350);
@@ -374,12 +384,10 @@ public class Gui extends Application {
           switch(title){
               case "Delete Path":
                   backendControl.removePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()));
-                  System.out.println("Delete Path");
+                  pathList.setAll(backendControl.getPaths());
                   break;
           }
       }
-
-      //confirm.showAndWait();
   }
 
   public void setupWindow(Stage stage, String stageTitle, Pane pane, double x, double y) {
@@ -453,8 +461,10 @@ public class Gui extends Application {
                       if(guiCity.getCityName() == null)continue;
                       if(guiCity.getCityName().equals(textfield1.getText())){temp = guiCity;}
                   }
+
                   temp.removeCity();
                   guiCities.remove(temp);
+                  System.out.println(backendControl.updateAllPaths());
                   break;
 
               case "LinkCities":
@@ -514,6 +524,8 @@ public class Gui extends Application {
                   }
                   removeTrainRails(List.of(tempRail));
 
+                  System.out.println(backendControl.updateAllPaths());
+
                   break;
 
               case "CreatePath":
@@ -527,12 +539,17 @@ public class Gui extends Application {
                   }
 
                   if(!backendControl.createPath(textfield1.getText(), textfield2.getText(), (int)algorithm.getSelectedToggle().getUserData())){
-                      showInformation("The path could not be created.", "Success");
+                      showInformation("The path could not be created.", "Error");
                   }
+                  String pathString = backendControl.getPathByName(backendControl.getPaths().getLast()).getPathDescription();
 
+                  showInformation("The path has been created and is saved in the path library.\n" + pathString, "New Path");
 
-                  //Markera pathen visuellt, samma metod som kommer användas när man kollar i biblioteket
-
+                  break;
+              case "ChangeAlgorithm":
+                  System.out.println("Change Algorithm");
+                  backendControl.updatePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()), (int)algorithm.getSelectedToggle().getUserData());
+                  pathList.setAll(backendControl.getPaths());
                   break;
 
 

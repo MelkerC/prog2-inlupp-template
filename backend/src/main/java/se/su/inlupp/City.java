@@ -20,10 +20,6 @@ public class City {
 
     @Override
     public String toString(){
-        if(visited){
-            return String.format("%s (YES)", name);
-        }else{
-            return String.format("%s (NO)", name);
-        }
+        return name;
     }
 }

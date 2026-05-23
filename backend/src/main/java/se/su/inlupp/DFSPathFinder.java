@@ -31,7 +31,7 @@ public class DFSPathFinder <T> implements PathFinder<T>{
 
         //newPath.addLast(to);
 
-        return new GraphPath<>(newPath, path);
+        return new GraphPath<>(newPath, path, "DFS");
     }
 
     private void connect(T to, T from, Map<T, T> connections, Graph<T> graph) {

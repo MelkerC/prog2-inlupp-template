@@ -33,11 +33,11 @@ public class BackendControl {
             return false;
         }
 
-        citiesGraph.removeCityName(cityName);
-
         for(City c : citiesGraph.getNodes()){
             if(c.getName().equals(cityName)){citiesGraph.remove(c);}
         }
+
+        citiesGraph.removeCityName(cityName);
         return true;
     }
 
@@ -78,6 +78,38 @@ public class BackendControl {
 
     public void removePath(GraphPath<City> path){
         pathLibrary.removePath(path.toString());
+    }
+
+    public List<String> updateAllPaths(){
+
+        List<GraphPath<City>> removedPaths = new ArrayList<>();
+        List<String> returnNames = new ArrayList<>();
+
+        for(GraphPath<City> path : pathLibrary.getAllPaths().values()){
+            if(!updatePath(path, path.getAlgorithmIndex())){
+                removedPaths.add(path);
+                returnNames.add(path.toString());
+
+            }
+        }
+
+        for(GraphPath<City> path : removedPaths){
+            pathLibrary.removePath(path.toString());
+        }
+
+        return returnNames;
+    }
+
+    public boolean updatePath(GraphPath<City> path, int algoritihm){
+        City from = path.getStart();
+        City to = path.getEnd();
+        GraphPath<City> updatedPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(from.getName()), getCity(to.getName()));
+
+        if(updatedPath == null){
+            return false;
+        }
+        pathLibrary.addPath(updatedPath.toString(), updatedPath);
+        return true;
     }
 
     public List<String> getEdgesFrom(String cityName){

@@ -48,7 +48,7 @@ public class BFSPathFinder <T> implements PathFinder<T>{
 
         //newPath.addLast(to);
 
-        return new GraphPath<>(newPath, path);
+        return new GraphPath<>(newPath, path, "BFS");
 
     }
 }

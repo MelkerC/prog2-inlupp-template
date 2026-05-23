@@ -4,15 +4,21 @@ import java.util.*;
 
 public class GraphPath<T> implements Path<T>{
 
-    private List<Edge<T>> pathEdges =  new LinkedList<>();
+    private final List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
 
-    private String pathName;
-    private int length;
+    private final String algortithm;
 
-    public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges){
+    private int totalWeight;
+
+    public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges,  String algortithm){
         this.pathNodes.addAll(pathNodes);
         this.pathEdges.addAll(pathEdges);
+        this.algortithm = algortithm;
+
+        for(Edge<T> edge: pathEdges){
+            totalWeight += edge.getWeight();
+        }
     }
 
     @Override
@@ -26,20 +32,11 @@ public class GraphPath<T> implements Path<T>{
 
     @Override
     public int getTotalWeight() {
-        int totalWeight = 0;
-
-        for(Edge<T> edge: pathEdges){
-            totalWeight += edge.getWeight();
-        }
         return totalWeight;
     }
 
-    public void setLength(int length){
-        this.length = length;
-    }
-    
-    public int getLength(){
-        return length;
+    public void setWeight(int totalWeight){
+        this.totalWeight = totalWeight;
     }
 
     @Override
@@ -48,11 +45,25 @@ public class GraphPath<T> implements Path<T>{
     @Override
     public List<T> getNodes() {return pathNodes;}
 
-    public void setPathName(String pathName) {this.pathName = pathName;}
-
-    public String getPathName() {return pathName;}
+    public int getAlgorithmIndex(){
+        return switch (algortithm) {
+            case "BFS" -> 1;
+            case "DFS" -> 2;
+            default -> 0;
+        };
+    }
 
     @Override
-    public String toString(){return "Path consists of: " + pathNodes;}
+    public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algortithm);}
 
+    public String getPathDescription(){
+        String pathString = "";
+        for(int index = 0; index < pathNodes.size() - 1; index++){
+            pathString += pathNodes.get(index);
+            pathString += " --" + pathEdges.get(index).getName();
+            pathString += " " + pathEdges.get(index).getWeight() + "km--> ";
+        }
+        pathString += pathNodes.getLast();
+        return pathString;
+    }
 }
