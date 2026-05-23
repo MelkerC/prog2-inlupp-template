@@ -5,9 +5,6 @@ import java.util.*;
 public class DijkstraPathFinder <T> implements PathFinder<T>{
     @Override
     public Path<T> findPath(Graph<T> graph, T from, T to) {
-
-        if(to == null || from == null) return null;
-
         Map<T, Integer> distance = new HashMap<>();
 
         Map<T, T> predecessor = new HashMap<>();
