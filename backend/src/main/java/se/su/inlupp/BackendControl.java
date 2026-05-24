@@ -107,9 +107,13 @@ public class BackendControl {
     public boolean updatePath(GraphPath<City> path, int algoritihm){
         City from = path.getStart();
         City to = path.getEnd();
+        GraphPath<City> updatedPath;
 
-        if(from == null || to == null){return false;}
-        GraphPath<City> updatedPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(from.getName()), getCity(to.getName()));
+        try{
+            updatedPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(from.getName()), getCity(to.getName()));
+        }catch(NullPointerException e){
+            return false;
+        }
 
         if(updatedPath == null){
             return false;

@@ -499,6 +499,7 @@ public class Gui extends Application {
                   GuiCity temp2 = new GuiCity(0,0, Gui.this);
 
                   for(GuiCity guiCity : guiCities){
+                      if(guiCity.getCityName() == null)continue;
                       if(guiCity.getCityName().equals(textfield1.getText())){temp1 = guiCity;}
                       if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
                   }
@@ -509,7 +510,7 @@ public class Gui extends Application {
                   graphArea.getChildren().addFirst(newRail.getVBox());
                   graphArea.getChildren().addFirst(newRail.getLine());
 
-                  //Här skapar den en  gui element  för kanten
+                  System.out.println(backendControl.updateAllPaths());
                   break;
 
               case "Disconnect":
