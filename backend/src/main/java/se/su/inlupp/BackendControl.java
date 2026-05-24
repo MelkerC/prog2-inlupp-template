@@ -105,6 +105,7 @@ public class BackendControl {
     }
 
     public boolean updatePath(GraphPath<City> path, int algoritihm){
+        if(path.getStart() == null || path.getEnd() == null){return false;}
         City from = path.getStart();
         City to = path.getEnd();
         GraphPath<City> updatedPath;
@@ -118,6 +119,7 @@ public class BackendControl {
         if(updatedPath == null){
             return false;
         }
+        pathLibrary.removePath(path.toString());
         pathLibrary.addPath(updatedPath.toString(), updatedPath);
         return true;
     }
