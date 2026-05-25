@@ -258,9 +258,15 @@ public class Gui extends Application {
   private void createRail(GuiCity temp1, GuiCity temp2, String tempName, int weight){
       GuiRail newRail = new GuiRail(temp1, temp2, tempName, weight);
 
+      if(temp1.equals(temp2)){
+          return;
+      }
+
+      if(!guiRails.containsKey(tempName)){
+          graphArea.getChildren().addFirst(newRail.getVBox());
+          graphArea.getChildren().addFirst(newRail.getLine());
+      }
       guiRails.put(tempName, newRail);
-      graphArea.getChildren().addFirst(newRail.getVBox());
-      graphArea.getChildren().addFirst(newRail.getLine());
   }
 
   private void spawnNodeFromSave(String name, double x, double y) {
