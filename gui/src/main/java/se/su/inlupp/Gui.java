@@ -184,9 +184,17 @@ public class Gui extends Application {
             }
         }
 
+        Map<String, String> edges = backendControl.getUniqueEdges();
+        for(String from : edges.keySet()){
+            String name = backendControl.getEdgesBetween(from, edges.get(from)).getName();
+            String to = edges.get(from);
+            int weight = backendControl.getEdgesBetween(from, edges.get(from)).getWeight();
+
+            createRail(getGuiCity(from), getGuiCity(to), name, weight);
+        }
+        /*
         for(GuiCity guiCity : guiCities){
             for(String edge : backendControl.getEdgesFrom(guiCity.getCityName())){
-
                 Edge<City> rail = backendControl.getEdgeByName(edge, guiCity.getCityName());
                 int weight = rail.getWeight();
                 GuiCity destination = null;
@@ -196,10 +204,20 @@ public class Gui extends Application {
                     }
                 }
                 if(destination == null){continue;}
+
                 createRail(guiCity, destination, "Rail between " + guiCity.getCityName() + " and " + destination.getCityName(), weight);
             }
-        }
+        }*/
     }
+  }
+
+  private GuiCity getGuiCity(String name){
+      for(GuiCity guiCity : guiCities){
+          if(guiCity.getCityName().equals(name)){
+              return guiCity;
+          }
+      }
+      return null;
   }
 
   public class SaveHandler implements EventHandler<ActionEvent> {
@@ -207,16 +225,20 @@ public class Gui extends Application {
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
 
-        Map<String, String> guiCityPlacements = new HashMap();
+        Map<String, String> guiCityPlacements = new HashMap<>();
+        Map<String, String> guiEdges = new HashMap<>();
 
         for(GuiCity guiCity : guiCities){
             guiCityPlacements.put(guiCity.getCityName(), guiCity.getPos());
         }
+
+        for(GuiRail rail : guiRails.values()){
+            guiEdges.put(rail.getCity1().getCityName(), rail.getCity2().getCityName());
+        }
+
         File saveFile = fileChooser.showSaveDialog(stage);
 
-        backendControl.saveProgram(saveFile, guiCityPlacements, currantBackgroundName);
-
-
+        backendControl.saveProgram(saveFile, guiCityPlacements, guiEdges, currantBackgroundName);
     }
   }
 
