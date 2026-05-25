@@ -189,12 +189,13 @@ public class Gui extends Application {
 
                 Edge<City> rail = backendControl.getEdgeByName(edge, guiCity.getCityName());
                 int weight = rail.getWeight();
-                GuiCity destination = guiCity;
+                GuiCity destination = null;
                 for(GuiCity guiCityDestination : guiCities){
                     if(rail.getDestination().getName().equals(guiCityDestination.getCityName())){
                         destination = guiCityDestination;
                     }
                 }
+                if(destination == null){continue;}
                 createRail(guiCity, destination, "Rail between " + guiCity.getCityName() + " and " + destination.getCityName(), weight);
             }
         }
