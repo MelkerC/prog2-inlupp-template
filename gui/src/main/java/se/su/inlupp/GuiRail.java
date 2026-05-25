@@ -33,7 +33,7 @@ public class GuiRail extends BorderPane {
         railLine.endYProperty().bind(city2.layoutYProperty().add(city2.heightProperty().divide(2)));
 
         vbox.layoutYProperty().bind(railLine.startYProperty().add(railLine.endYProperty()).divide(2).subtract(40));
-        vbox.layoutXProperty().bind(railLine.startXProperty().add(railLine.endXProperty()).divide(2));
+        vbox.layoutXProperty().bind(railLine.startXProperty().add(railLine.endXProperty()).divide(2).subtract(25));
 
         railLine.setStroke(Color.RED);
         railLine.setStrokeWidth(3);

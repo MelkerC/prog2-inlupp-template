@@ -13,9 +13,12 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
@@ -26,11 +29,14 @@ import javafx.util.converter.IntegerStringConverter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static java.lang.Integer.parseInt;
 import static javafx.application.Platform.exit;
+
+
 
 public class Gui extends Application {
     private final BackendControl backendControl = new BackendControl();
@@ -50,7 +56,7 @@ public class Gui extends Application {
     private Stage stage, pathLibraryStage;
     private TextField textfield1 = new TextField();
     private TextField textfield2 = new TextField();
-    private TextField textfield3 = new TextField();
+    //private TextField textfield3 = new TextField();
     private TextField textfield4 = new TextField();
     private Button addCity, screenShotButton, removeCity, disconnectButton;
     private ListView<String> listView;
@@ -58,6 +64,9 @@ public class Gui extends Application {
     private RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
     private RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
     private VBox algorithmsBox = new VBox();
+
+    private Image imageBackground;
+    private ImageView background;
 
   public void start(Stage stage) {
       stage.setTitle("Train rail finder");
@@ -101,6 +110,7 @@ public class Gui extends Application {
       removeCity = new Button("Remove City");buttons.add(removeCity);
       screenShotButton = new Button("Save Screenshot");buttons.add(screenShotButton);
       disconnectButton = new Button("Disconnect");buttons.add(disconnectButton);
+      Button changeBackground = new Button("Change Background");buttons.add(changeBackground);
       Button pathLibrary = new Button("Path Library");buttons.add(pathLibrary);
       Button linkCities = new Button("Link Cities");buttons.add(linkCities);
       Button findPath = new Button("Find Path");buttons.add(findPath);
@@ -110,7 +120,7 @@ public class Gui extends Application {
       lowerScreenMenu.getChildren().addAll(addCity, removeCity, linkCities, disconnectButton, findPath, pathLibrary);
       lowerScreenMenu.setAlignment(Pos.CENTER); lowerScreenMenu.setSpacing(10);
       lowerScreenMenu.setStyle("-fx-background-color: green;");
-      upperScreenMenu.getChildren().addAll(menuBar, screenShotButton);
+      upperScreenMenu.getChildren().addAll(menuBar, screenShotButton, changeBackground);
       upperScreenMenu.setSpacing(10);
       upperScreenMenu.setStyle("-fx-background-color: green;");
 
@@ -122,10 +132,12 @@ public class Gui extends Application {
       removeCity.setOnAction(new RemoveCityButtonHandler());
       screenShotButton.setOnAction(new SaveScreenShotButtonHandler());
       disconnectButton.setOnAction(new DisconnectButtonHandler());
+      changeBackground.setOnAction(new ChangeBackgroundButtonHandler());
       linkCities.setOnAction(new LinkCitiesButtonHandler());
       findPath.setOnAction(new CreatePathButtonHandler());
       pathLibrary.setOnAction(new PathLibraryButtonHandler());
 
+      background = new ImageView(imageBackground);
 
       return new Scene(borderPane, 1000, 500);
   }
@@ -178,8 +190,37 @@ public class Gui extends Application {
         } catch (IOException e){
             e.printStackTrace();
         }
-
     }
+  }
+
+  public class ChangeBackgroundButtonHandler implements EventHandler<ActionEvent> {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+          fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg"));
+          fileChooser.setInitialDirectory(new File("/Users/"));
+          File openFile = fileChooser.showOpenDialog(stage);
+
+          imageBackground = new Image(openFile.toURI().toString());
+
+          background.setImage(imageBackground);
+
+          String fileName = "Image_" + System.currentTimeMillis() + ".png";
+
+          File output = new File("src/main/resources/" + fileName);
+
+          try{
+              BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageBackground, null);
+              ImageIO.write(bufferedImage, "png", output);
+          }catch(IOException e){
+              Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+          }
+
+          background.setPreserveRatio(true);
+          background.fitWidthProperty().bind(graphArea.widthProperty());
+          background.fitHeightProperty().bind(graphArea.heightProperty());
+
+          graphArea.getChildren().addFirst(background);
+      }
   }
 
   public void spawnNodeFromSave(double x, double y, String name, boolean visited) {
@@ -292,11 +333,10 @@ public class Gui extends Application {
           FlowPane flowPane = createFlowPane(linkCitiesStage, new Confirming("LinkCities", linkCitiesStage),"Write the names of the two cities\nthat you would like to connect and then\nset a name and a distance to the  rail.");
 
           HBox textFieldBox = new HBox(); textFieldBox.setAlignment(Pos.CENTER); textFieldBox.setSpacing(5);
-          TextField field3 = new TextField(); TextField field4 = new TextField();
-          field3.setPromptText("Rail name"); field4.setPromptText("Distance in km");
-          field3.setPrefWidth(75); field4.setPrefWidth(75);
-          textFieldBox.getChildren().addAll(field3, field4);
-          textfield3 = field3;
+          TextField field4 = new TextField();
+          field4.setPromptText("Distance in km");
+          field4.setPrefWidth(150);
+          textFieldBox.getChildren().add(field4);
           textfield4 = field4;
 
           UnaryOperator<TextFormatter.Change> filter = change -> {
@@ -476,10 +516,9 @@ public class Gui extends Application {
                       showInformation("Textfield two is empty. Write a city to connect.", "Error");
                       return;
                   }
-                  if(textfield3.getText().isEmpty()){
-                      showInformation("Textfield three is empty. Write a name for the rail.", "Error");
-                      return;
-                  }
+
+                  String tempName = "Rail between " + textfield1.getText() + " and " + textfield2.getText();
+
                   if(textfield4.getText().isEmpty()){
                       showInformation("Textfield four is empty. Write a distance for the rail.", "Error");
                       return;
@@ -490,7 +529,7 @@ public class Gui extends Application {
                       return;
                   }
 
-                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), textfield3.getText(), parseInt(textfield4.getText()))){
+                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), tempName, parseInt(textfield4.getText()))){
                       showInformation("The cities could not be connected. Either the cities do not exist or they are already connected.", "Error");
                       return;
                   }
@@ -504,9 +543,9 @@ public class Gui extends Application {
                       if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
                   }
 
-                  GuiRail newRail = new GuiRail(temp1, temp2, textfield3.getText(), parseInt(textfield4.getText()));
+                  GuiRail newRail = new GuiRail(temp1, temp2, tempName, parseInt(textfield4.getText()));
 
-                  guiRails.put(textfield3.getText(), newRail);
+                  guiRails.put(tempName, newRail);
                   graphArea.getChildren().addFirst(newRail.getVBox());
                   graphArea.getChildren().addFirst(newRail.getLine());
 
