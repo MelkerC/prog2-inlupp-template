@@ -16,7 +16,7 @@ public class City {
 
     public boolean getVisited(){return visited;}
 
-    public void visit(){visited = true;}
+    public void visit(){visited = !visited;}
 
     @Override
     public String toString(){

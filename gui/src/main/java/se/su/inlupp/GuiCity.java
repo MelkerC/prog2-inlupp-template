@@ -131,6 +131,10 @@ public class GuiCity extends BorderPane {
         vBox.setAlignment(Pos.CENTER);
         vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
+        visitedCheck.setOnAction(event -> {
+           gui.getBackend().getCity(cityNameTag.getText()).visit();
+        });
+
         node.getChildren().addAll(circle, vBox);
         closePopup(popUpWindow);
     }

@@ -477,7 +477,7 @@ public class Gui extends Application {
                       return;
                   }
                   if(textfield3.getText().isEmpty()){
-                      showInformation("Textfield three is empty. Write a name forthe rail.", "Error");
+                      showInformation("Textfield three is empty. Write a name for the rail.", "Error");
                       return;
                   }
                   if(textfield4.getText().isEmpty()){
