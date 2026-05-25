@@ -1,7 +1,6 @@
 package se.su.inlupp;
 
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.*;
 
 public class BackendControl {
@@ -18,6 +17,49 @@ public class BackendControl {
     private final PathFinder<City> pathFinderDijkstra = new DijkstraPathFinder<>();
     private final ArrayList<PathFinder<City>> pathFinders = new ArrayList<>(List.of(pathFinderDijkstra, pathFinderBFS, pathFinderDFS));
 
+
+    public void saveProgram(File saveFile, Map<String, String> guiCityPlacement, String currantBackgroundName) {
+        String saveInfo = citiesGraph.getNodes().size() + "\n";
+
+        for(City city : citiesGraph.getNodes()){
+            saveInfo += city.getName() + "\n";
+            saveInfo += city.getVisited() + "\n";
+            saveInfo += citiesGraph.getEdgesFrom(city).size() + "\n";
+            for(Edge edge : citiesGraph.getEdgesFrom(city)){
+                saveInfo += edge.getDestination() + "\n";
+                saveInfo += edge.getName() + "\n";
+                saveInfo += edge.getWeight() + "\n";
+            }
+        }
+
+        saveInfo += guiCityPlacement.size() + "\n";
+        for(String guiCity : guiCityPlacement.keySet()){
+            saveInfo += guiCity + "\n";
+            saveInfo += guiCityPlacement.get(guiCity) + "\n";
+        }
+
+        saveInfo += pathLibrary.getAllPaths().size() + "\n";
+        for(GraphPath<City> path : pathLibrary.getAllPaths().values()){
+            saveInfo += path.getStart() + "\n";
+            saveInfo += path.getEnd() + "\n";
+            saveInfo += path.getAlgortithm() + "\n";
+        }
+
+        saveInfo += currantBackgroundName + "\n";
+
+        try{
+            BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile));
+            writer.write(saveInfo);
+            writer.close();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void loadProgram(){
+
+    }
 
     public boolean addCity(String cityName){
         if(citiesGraph.getCityNames().contains(cityName)){
@@ -46,7 +88,6 @@ public class BackendControl {
     }
 
     public boolean connectCities(String city1, String city2, String rail, int weight){
-
         try{
             citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
@@ -85,7 +126,6 @@ public class BackendControl {
     }
 
     public List<String> updateAllPaths(){
-
         List<GraphPath<City>> removedPaths = new ArrayList<>();
         List<String> returnNames = new ArrayList<>();
 

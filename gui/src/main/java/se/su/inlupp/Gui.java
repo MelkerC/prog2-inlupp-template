@@ -18,7 +18,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
@@ -29,7 +28,6 @@ import javafx.util.converter.IntegerStringConverter;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -46,6 +44,7 @@ public class Gui extends Application {
     private final Map<String, GuiRail> guiRails = new HashMap();
     private final ArrayList<Control> buttons = new ArrayList<>();
     private final FileChooser fileChooser = new FileChooser();
+    private final FileChooser imageChooser = new FileChooser();
     private final ToggleGroup algorithm = new ToggleGroup();
 
     private ObservableList<String> pathList;
@@ -56,8 +55,7 @@ public class Gui extends Application {
     private Stage stage, pathLibraryStage;
     private TextField textfield1 = new TextField();
     private TextField textfield2 = new TextField();
-    //private TextField textfield3 = new TextField();
-    private TextField textfield4 = new TextField();
+    private TextField textfield3 = new TextField();
     private Button addCity, screenShotButton, removeCity, disconnectButton;
     private ListView<String> listView;
     private RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
@@ -65,6 +63,7 @@ public class Gui extends Application {
     private RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
     private VBox algorithmsBox = new VBox();
 
+    private String currantBackgroundName;
     private Image imageBackground;
     private ImageView background;
 
@@ -179,45 +178,52 @@ public class Gui extends Application {
   public class SaveHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent actionEvent) {
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         fileChooser.setInitialDirectory(new File("/Users/"));
-        File saveFile = fileChooser.showSaveDialog(stage);
-        try{
-            FileOutputStream fos = new FileOutputStream(saveFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(graphArea);//här sparas grafen
-            oos.close();
 
-        } catch (IOException e){
-            e.printStackTrace();
+        Map<String, String> guiCityPlacements = new HashMap();
+
+        for(GuiCity guiCity : guiCities){
+            guiCityPlacements.put(guiCity.getCityName(), guiCity.getPos());
         }
+        File saveFile = fileChooser.showSaveDialog(stage);
+
+        backendControl.saveProgram(saveFile, guiCityPlacements, currantBackgroundName);
+
+
     }
   }
 
   public class ChangeBackgroundButtonHandler implements EventHandler<ActionEvent> {
       @Override
       public void handle(ActionEvent actionEvent) {
-          fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg"));
-          fileChooser.setInitialDirectory(new File("/Users/"));
-          File openFile = fileChooser.showOpenDialog(stage);
+          imageChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg"));
+          imageChooser.setInitialDirectory(new File("/Users/"));
+          File openFile = imageChooser.showOpenDialog(stage);
 
           imageBackground = new Image(openFile.toURI().toString());
 
           background.setImage(imageBackground);
 
-          String fileName = "Image_" + System.currentTimeMillis() + ".png";
+          currantBackgroundName = "Image_" + System.currentTimeMillis() + ".png";
 
-          File output = new File("src/main/resources/" + fileName);
+          File output = new File("src/main/resources/" + currantBackgroundName);
 
           try{
               BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageBackground, null);
               ImageIO.write(bufferedImage, "png", output);
           }catch(IOException e){
               Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
+              alert.setTitle("Error");
+              alert.showAndWait();
           }
 
           background.setPreserveRatio(true);
           background.fitWidthProperty().bind(graphArea.widthProperty());
           background.fitHeightProperty().bind(graphArea.heightProperty());
+
+
+          graphArea.getChildren().remove(background);
 
           graphArea.getChildren().addFirst(background);
       }
@@ -337,7 +343,7 @@ public class Gui extends Application {
           field4.setPromptText("Distance in km");
           field4.setPrefWidth(150);
           textFieldBox.getChildren().add(field4);
-          textfield4 = field4;
+          textfield3 = field4;
 
           UnaryOperator<TextFormatter.Change> filter = change -> {
               String text = change.getControlNewText();
@@ -349,7 +355,7 @@ public class Gui extends Application {
 
           TextFormatter<Integer> formatter = new TextFormatter<>(new IntegerStringConverter(),null,filter);
 
-          textfield4.setTextFormatter(formatter);
+          textfield3.setTextFormatter(formatter);
 
           flowPane.getChildren().add(1, textFieldBox);
 
@@ -519,7 +525,7 @@ public class Gui extends Application {
 
                   String tempName = "Rail between " + textfield1.getText() + " and " + textfield2.getText();
 
-                  if(textfield4.getText().isEmpty()){
+                  if(textfield3.getText().isEmpty()){
                       showInformation("Textfield four is empty. Write a distance for the rail.", "Error");
                       return;
                   }
@@ -529,7 +535,7 @@ public class Gui extends Application {
                       return;
                   }
 
-                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), tempName, parseInt(textfield4.getText()))){
+                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), tempName, parseInt(textfield3.getText()))){
                       showInformation("The cities could not be connected. Either the cities do not exist or they are already connected.", "Error");
                       return;
                   }
@@ -543,7 +549,7 @@ public class Gui extends Application {
                       if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
                   }
 
-                  GuiRail newRail = new GuiRail(temp1, temp2, tempName, parseInt(textfield4.getText()));
+                  GuiRail newRail = new GuiRail(temp1, temp2, tempName, parseInt(textfield3.getText()));
 
                   guiRails.put(tempName, newRail);
                   graphArea.getChildren().addFirst(newRail.getVBox());

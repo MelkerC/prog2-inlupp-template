@@ -177,6 +177,10 @@ public class GuiCity extends BorderPane {
         }
     }
 
+    public String getPos(){
+        return getLayoutX() + " " + getLayoutY();
+    }
+
     public StackPane getNode() {
         return node;
     }

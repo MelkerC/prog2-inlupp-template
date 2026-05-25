@@ -53,6 +53,10 @@ public class GraphPath<T> implements Path<T>{
         };
     }
 
+    public String getAlgortithm(){
+        return algortithm;
+    }
+
     @Override
     public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algortithm);}
 
