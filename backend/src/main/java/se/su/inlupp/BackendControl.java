@@ -8,8 +8,6 @@ public class BackendControl {
     //Memory data
     private final ListGraph<City> citiesGraph = new ListGraph<>();
     private final PathLibrary<City> pathLibrary = new PathLibrary<>();
-    private FileReader fileReader;
-    private FileWriter fileWriter;
 
     //Pathfinders
     private final PathFinder<City> pathFinderBFS = new BFSPathFinder<>();
@@ -24,8 +22,11 @@ public class BackendControl {
         for(City city : citiesGraph.getNodes()){
             saveInfo += city.getName() + "\n";
             saveInfo += city.getVisited() + "\n";
+        }
+
+        for(City city : citiesGraph.getNodes()){
             saveInfo += citiesGraph.getEdgesFrom(city).size() + "\n";
-            for(Edge edge : citiesGraph.getEdgesFrom(city)){
+            for(Edge<City> edge : citiesGraph.getEdgesFrom(city)){
                 saveInfo += edge.getDestination() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
@@ -33,8 +34,14 @@ public class BackendControl {
         }
 
         saveInfo += guiCityPlacement.size() + "\n";
+        int undeclared = 0;
         for(String guiCity : guiCityPlacement.keySet()){
-            saveInfo += guiCity + "\n";
+            if(guiCity == null){
+                saveInfo += "undeclared" + undeclared++ + "\n";
+            }else{
+                saveInfo += guiCity + "\n";
+            }
+
             saveInfo += guiCityPlacement.get(guiCity) + "\n";
         }
 
@@ -42,7 +49,7 @@ public class BackendControl {
         for(GraphPath<City> path : pathLibrary.getAllPaths().values()){
             saveInfo += path.getStart() + "\n";
             saveInfo += path.getEnd() + "\n";
-            saveInfo += path.getAlgortithm() + "\n";
+            saveInfo += path.getAlgorithmIndex() + "\n";
         }
 
         saveInfo += currantBackgroundName + "\n";
@@ -57,8 +64,53 @@ public class BackendControl {
         }
     }
 
-    public void loadProgram(){
+    public Map<String, String> loadProgram(File saveFile) {
+        Map<String, String> guiCityPlacement = new HashMap<>();
 
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+            int nodeCount = Integer.parseInt(reader.readLine());
+            for(int i = 0; i < nodeCount; i++){
+                String tempName = reader.readLine();
+                boolean visited = Boolean.parseBoolean(reader.readLine());
+                citiesGraph.add(new City(tempName, visited));
+            }
+
+            for(City city : citiesGraph.getNodes()){
+                int edgeCount = Integer.parseInt(reader.readLine());
+                for(int i = 0; i < edgeCount; i++){
+                    String destination = reader.readLine();
+                    String edgeName = reader.readLine();
+                    int weight = Integer.parseInt(reader.readLine());
+
+                    connectCities(city.getName(), destination, edgeName, weight);
+                }
+            }
+
+            int placmentCount = Integer.parseInt(reader.readLine());
+            for(int i = 0; i < placmentCount; i++){
+                String cityName = reader.readLine();
+                String placement = reader.readLine();
+
+                guiCityPlacement.put(cityName, placement);
+            }
+
+            int pathCount = Integer.parseInt(reader.readLine());
+            for(int i = 0; i < pathCount; i++){
+                String startCity = reader.readLine();
+                String endCity = reader.readLine();
+                int algortithm = Integer.parseInt(reader.readLine());
+                createPath(startCity, endCity, algortithm);
+            }
+
+            guiCityPlacement.put("Image", reader.readLine());
+            reader.close();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return guiCityPlacement;
     }
 
     public boolean addCity(String cityName){
@@ -186,6 +238,10 @@ public class BackendControl {
 
     public GraphPath<City> getPathByName(String pathName){
         return pathLibrary.getPath(pathName);
+    }
+
+    public Edge<City> getEdgeByName(String edgeName, String from){
+        citiesGraph.getEdgesFrom(getCity(from));
     }
 
     public String getEdgeNameBetween(City city1, City city2){

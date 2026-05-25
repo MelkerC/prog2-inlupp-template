@@ -43,6 +43,8 @@ public class GuiCity extends BorderPane {
         this.gui = gui;
         gui.addButton(createCity);
 
+        //visitedCheck.setSelected(gui.getBackend().getCity(cityName.getText()).getVisited());
+
         circle.setFill(Color.GRAY);
 
         node.getChildren().addAll(circle, createCity);

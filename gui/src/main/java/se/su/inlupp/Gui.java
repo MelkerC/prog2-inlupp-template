@@ -31,6 +31,7 @@ import java.io.*;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static javafx.application.Platform.exit;
 
@@ -85,6 +86,8 @@ public class Gui extends Application {
       this.stage = stage;
 
       this.stage.setOnCloseRequest(this::saveAndExit);
+
+      fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
       buttons.add(menuBar);
       //Paneler
@@ -162,15 +165,32 @@ public class Gui extends Application {
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
         File openFile = fileChooser.showOpenDialog(stage);
-        try{
-            FileInputStream fis = new FileInputStream(openFile);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            //graphArea = (Map)ois.readObject();
 
-        }catch(IOException e){
-            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
-            alert.setTitle("Error");
-            alert.showAndWait();
+        Map<String, String> spawnCities = backendControl.loadProgram(openFile);
+
+
+        for(String cityName : spawnCities.keySet()){
+            if(spawnCities.equals("Image")){
+
+            }else{
+                String[] spawnPos = spawnCities.get(cityName).split("\\s+");
+                if(cityName.contains("undeclared")){
+                    spawnUndeclaredNode(parseDouble(spawnPos[0]), parseDouble(spawnPos[1]));
+                }else{
+                    if(!spawnCities.get(cityName).equals("null")){
+                        spawnNodeFromSave(cityName, parseDouble(spawnPos[0]), parseDouble(spawnPos[1]));
+                    }
+                }
+            }
+        }
+
+        for(GuiCity guiCity : guiCities){
+            for(String edge : backendControl.getEdgesFrom(guiCity.getCityName())){
+
+                TrainRail<City> rail = backendControl.getEdge(edge);
+
+                createRail(guiCity, , , );
+            }
         }
     }
   }
@@ -178,7 +198,6 @@ public class Gui extends Application {
   public class SaveHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent actionEvent) {
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         fileChooser.setInitialDirectory(new File("/Users/"));
 
         Map<String, String> guiCityPlacements = new HashMap();
@@ -229,12 +248,26 @@ public class Gui extends Application {
       }
   }
 
-  public void spawnNodeFromSave(double x, double y, String name, boolean visited) {
+  private void createRail(GuiCity temp1, GuiCity temp2, String tempName, int weight){
+      GuiRail newRail = new GuiRail(temp1, temp2, tempName, weight);
+
+      guiRails.put(tempName, newRail);
+      graphArea.getChildren().addFirst(newRail.getVBox());
+      graphArea.getChildren().addFirst(newRail.getLine());
+  }
+
+  private void spawnNodeFromSave(String name, double x, double y) {
       GuiCity city = new GuiCity(x, y, Gui.this);
       guiCities.add(city);
       graphArea.getChildren().add(city);
       city.createCityNode(name);
       closeStage(null);
+  }
+
+  private void spawnUndeclaredNode(double x, double y) {
+      GuiCity city = new GuiCity(x, y, Gui.this);
+      guiCities.add(city);
+      graphArea.getChildren().add(city);
   }
 
   public class SpawnNode implements EventHandler<MouseEvent> {
@@ -549,11 +582,9 @@ public class Gui extends Application {
                       if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
                   }
 
-                  GuiRail newRail = new GuiRail(temp1, temp2, tempName, parseInt(textfield3.getText()));
+                  int weight = parseInt(textfield3.getText());
 
-                  guiRails.put(tempName, newRail);
-                  graphArea.getChildren().addFirst(newRail.getVBox());
-                  graphArea.getChildren().addFirst(newRail.getLine());
+                  createRail(temp1, temp2, tempName, weight);
 
                   System.out.println(backendControl.updateAllPaths());
                   break;
