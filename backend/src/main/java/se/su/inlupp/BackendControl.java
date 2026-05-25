@@ -241,7 +241,10 @@ public class BackendControl {
     }
 
     public Edge<City> getEdgeByName(String edgeName, String from){
-        citiesGraph.getEdgesFrom(getCity(from));
+        for(Edge<City> e : citiesGraph.getEdgesFrom(getCity(from))){
+            if(e.getName().equals(edgeName)){return e;}
+        }
+        return null;
     }
 
     public String getEdgeNameBetween(City city1, City city2){

@@ -187,9 +187,15 @@ public class Gui extends Application {
         for(GuiCity guiCity : guiCities){
             for(String edge : backendControl.getEdgesFrom(guiCity.getCityName())){
 
-                TrainRail<City> rail = backendControl.getEdge(edge);
-
-                createRail(guiCity, , , );
+                Edge<City> rail = backendControl.getEdgeByName(edge, guiCity.getCityName());
+                int weight = rail.getWeight();
+                GuiCity destination = guiCity;
+                for(GuiCity guiCityDestination : guiCities){
+                    if(rail.getDestination().getName().equals(guiCityDestination.getCityName())){
+                        destination = guiCityDestination;
+                    }
+                }
+                createRail(guiCity, destination, "Rail between " + guiCity.getCityName() + " and " + destination.getCityName(), weight);
             }
         }
     }
