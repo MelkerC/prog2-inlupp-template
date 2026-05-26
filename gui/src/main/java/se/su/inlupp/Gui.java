@@ -187,6 +187,9 @@ public class Gui extends Application {
         Map<String, String> edges = backendControl.getUniqueEdges();
         for(String from : edges.keySet()){
             Edge<City> edge = backendControl.getEdgesBetween(from, edges.get(from));
+            if(edge != null){
+                continue;
+            }
             String name = edge.getName();
             String to = edges.get(from);
             int weight = backendControl.getEdgesBetween(from, edges.get(from)).getWeight();

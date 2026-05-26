@@ -25,13 +25,21 @@ public class BackendControl {
             saveInfo += city.getVisited() + "\n";
         }
 
-        saveInfo += citiesGraph.getNodes().size() + "\n";
+        saveInfo += citiesGraph.getAllEdges().size() / 2 + "\n";
+
+        Set<String> seen = new HashSet<>();
 
         for(City city : citiesGraph.getNodes()){
-            saveInfo += citiesGraph.getEdgesFrom(city).size() + "\n";
             for(Edge<City> edge : citiesGraph.getEdgesFrom(city)){
+
+                String key = edge.getName();
+
+                if(seen.contains(key)){
+                    continue;
+                }
+                seen.add(key);
                 saveInfo += city.getName() + "\n";
-                saveInfo += edge.getDestination() + "\n";
+                saveInfo += edge.getDestination().getName() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
             }
@@ -92,20 +100,14 @@ public class BackendControl {
             int cityWithEdge = Integer.parseInt(reader.readLine());
 
             for(int i = 0; i < cityWithEdge; i++){
-                int edgeCount = Integer.parseInt(reader.readLine());
-                for(int j = 0; j < edgeCount; j++){
-                    String cityName = reader.readLine();
-                    String destination = reader.readLine();
-                    String edgeName = reader.readLine();
-                    int weight = Integer.parseInt(reader.readLine());
 
-                    if(!citiesGraph.isNeighbor(getCity(cityName), getCity(destination))){
-                        connectCities(cityName, destination, edgeName, weight);
-                    }
-                }
+                String cityName = reader.readLine();
+                String destination = reader.readLine();
+                String edgeName = reader.readLine();
+                int weight = Integer.parseInt(reader.readLine());
+
+                connectCities(cityName, destination, edgeName, weight);
             }
-
-
 
             int placmentCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < placmentCount; i++){
@@ -124,6 +126,7 @@ public class BackendControl {
             }
 
             uniqueEdges = new HashMap<>(guiEdges);
+            System.out.println(uniqueEdges + " uniquueeeee");
 
             int pathCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < pathCount; i++){
@@ -264,7 +267,7 @@ public class BackendControl {
         for(City c : citiesGraph.getNodes()){
             if(c.getName().equals(cityName)){return c;}
         }
-        return new City(cityName, false);
+        return null;
     }
 
     public List<String> getPaths(){

@@ -22,4 +22,18 @@ public class City {
     public String toString(){
         return name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof City other)) return false;
+
+        return name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
 }

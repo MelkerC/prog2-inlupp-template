@@ -33,6 +33,12 @@ public class ListGraph <T> implements Graph<T>{
     @Override
     public boolean hasNode(T node) {return graph.containsKey(node);}
 
+
+    public void connectOnLoad(T node1, T node2, String name, int weight){
+        Set<Edge<T>> edgesNode1 = graph.get(node1);
+        edgesNode1.add(new TrainRail<>(node2, name, weight));
+    }
+
     @Override
     public void connect(T node1, T node2, String name, int weight) {
 
@@ -72,6 +78,14 @@ public class ListGraph <T> implements Graph<T>{
 
     @Override
     public Set<T> getNodes() {return graph.keySet();}
+
+    public Set<Edge<T>> getAllEdges(){
+        Set<Edge<T>> edges = new HashSet<>();
+        for(Set<Edge<T>> set : graph.values()){
+            edges.addAll(set);
+        }
+        return edges;
+    }
 
     @Override
     public Collection<Edge<T>> getEdgesFrom(T node) {
