@@ -167,7 +167,7 @@ public class Gui extends Application {
         File openFile = fileChooser.showOpenDialog(stage);
 
         Map<String, String> spawnCities = backendControl.loadProgram(openFile);
-
+        graphArea.getChildren().clear();
 
         for(String cityName : spawnCities.keySet()){
             if(spawnCities.equals("Image")){

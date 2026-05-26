@@ -135,4 +135,9 @@ public class ListGraph <T> implements Graph<T>{
     public void removeCityName(String cityName){cityNames.remove(cityName);}
 
     public String toString(){return graph.toString();}
+
+    public void restart(){
+        graph.clear();
+        cityNames.clear();
+    }
 }

@@ -31,7 +31,6 @@ public class BackendControl {
                 saveInfo += edge.getDestination() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
-                System.out.println("Edge saved");
             }
         }
 
@@ -73,6 +72,8 @@ public class BackendControl {
     }
 
     public Map<String, String> loadProgram(File saveFile) {
+        citiesGraph.restart();
+        uniqueEdges.clear();
         Map<String, String> guiCityPlacement = new HashMap<>();
         Map<String, String> guiEdges = new HashMap<>();
 
@@ -91,12 +92,10 @@ public class BackendControl {
                     String destination = reader.readLine();
                     String edgeName = reader.readLine();
                     int weight = Integer.parseInt(reader.readLine());
-                    System.out.println("EdgeLoaded");
-
-                    // borde loada unique edges precis som guirail gör, nu laddas varje edge in dubbelt
                     connectCities(city.getName(), destination, edgeName, weight);
                 }
             }
+
 
             int placmentCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < placmentCount; i++){
