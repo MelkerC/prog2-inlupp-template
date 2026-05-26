@@ -93,6 +93,7 @@ public class BackendControl {
                     int weight = Integer.parseInt(reader.readLine());
                     System.out.println("EdgeLoaded");
 
+                    // borde loada unique edges precis som guirail gör, nu laddas varje edge in dubbelt
                     connectCities(city.getName(), destination, edgeName, weight);
                 }
             }
@@ -167,7 +168,7 @@ public class BackendControl {
         try{
             citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
-            System.out.println("Problem here");
+            System.out.println(e);
             return false;
         }
         return true;
@@ -265,12 +266,9 @@ public class BackendControl {
         return pathLibrary.getPath(pathName);
     }
 
-
     public Edge<City> getEdgesBetween(String from, String to){
         return citiesGraph.getEdgeBetween(getCity(from), getCity(to));
     }
-
-
 
     public String getEdgeNameBetween(City city1, City city2){
         return citiesGraph.getEdgeBetween(city1, city2).getName();
