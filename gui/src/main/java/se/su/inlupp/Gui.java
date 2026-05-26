@@ -186,28 +186,13 @@ public class Gui extends Application {
 
         Map<String, String> edges = backendControl.getUniqueEdges();
         for(String from : edges.keySet()){
-            String name = backendControl.getEdgesBetween(from, edges.get(from)).getName();
+            Edge<City> edge = backendControl.getEdgesBetween(from, edges.get(from));
+            String name = edge.getName();
             String to = edges.get(from);
             int weight = backendControl.getEdgesBetween(from, edges.get(from)).getWeight();
 
             createRail(getGuiCity(from), getGuiCity(to), name, weight);
         }
-        /*
-        for(GuiCity guiCity : guiCities){
-            for(String edge : backendControl.getEdgesFrom(guiCity.getCityName())){
-                Edge<City> rail = backendControl.getEdgeByName(edge, guiCity.getCityName());
-                int weight = rail.getWeight();
-                GuiCity destination = null;
-                for(GuiCity guiCityDestination : guiCities){
-                    if(rail.getDestination().getName().equals(guiCityDestination.getCityName())){
-                        destination = guiCityDestination;
-                    }
-                }
-                if(destination == null){continue;}
-
-                createRail(guiCity, destination, "Rail between " + guiCity.getCityName() + " and " + destination.getCityName(), weight);
-            }
-        }*/
     }
   }
 
@@ -626,6 +611,10 @@ public class Gui extends Application {
 
               case "Disconnect":
 
+                  if(backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText())) == null) {
+                      showInformation("Cities not connected.", "Error");
+                      return;
+                  }
                   String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText()));
                   if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
                       showInformation("You need to fill in the textfields.", "Error");

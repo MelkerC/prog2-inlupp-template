@@ -31,6 +31,7 @@ public class BackendControl {
                 saveInfo += edge.getDestination() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
+                System.out.println("Edge saved");
             }
         }
 
@@ -90,6 +91,7 @@ public class BackendControl {
                     String destination = reader.readLine();
                     String edgeName = reader.readLine();
                     int weight = Integer.parseInt(reader.readLine());
+                    System.out.println("EdgeLoaded");
 
                     connectCities(city.getName(), destination, edgeName, weight);
                 }
@@ -165,6 +167,7 @@ public class BackendControl {
         try{
             citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
+            System.out.println("Problem here");
             return false;
         }
         return true;
