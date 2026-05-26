@@ -563,7 +563,7 @@ public class Gui extends Application {
 
                   temp.removeCity();
                   guiCities.remove(temp);
-                  System.out.println(backendControl.updateAllPaths());
+                  backendControl.updateAllPaths();
                   break;
 
               case "LinkCities":
@@ -606,7 +606,7 @@ public class Gui extends Application {
 
                   createRail(temp1, temp2, tempName, weight);
 
-                  System.out.println(backendControl.updateAllPaths());
+                  backendControl.updateAllPaths();
                   break;
 
               case "Disconnect":
@@ -625,7 +625,7 @@ public class Gui extends Application {
                   }
                   removeTrainRails(List.of(tempRail));
 
-                  System.out.println(backendControl.updateAllPaths());
+                  backendControl.updateAllPaths();
 
                   break;
 
@@ -648,7 +648,6 @@ public class Gui extends Application {
 
                   break;
               case "ChangeAlgorithm":
-                  System.out.println("Change Algorithm");
                   backendControl.updatePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()), (int)algorithm.getSelectedToggle().getUserData());
                   pathList.setAll(backendControl.getPaths());
                   break;

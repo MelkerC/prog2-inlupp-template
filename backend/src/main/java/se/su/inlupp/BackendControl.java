@@ -25,9 +25,12 @@ public class BackendControl {
             saveInfo += city.getVisited() + "\n";
         }
 
+        saveInfo += citiesGraph.getNodes().size() + "\n";
+
         for(City city : citiesGraph.getNodes()){
             saveInfo += citiesGraph.getEdgesFrom(city).size() + "\n";
             for(Edge<City> edge : citiesGraph.getEdgesFrom(city)){
+                saveInfo += city.getName() + "\n";
                 saveInfo += edge.getDestination() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
@@ -86,15 +89,22 @@ public class BackendControl {
                 citiesGraph.add(new City(tempName, visited));
             }
 
-            for(City city : citiesGraph.getNodes()){
+            int cityWithEdge = Integer.parseInt(reader.readLine());
+
+            for(int i = 0; i < cityWithEdge; i++){
                 int edgeCount = Integer.parseInt(reader.readLine());
-                for(int i = 0; i < edgeCount; i++){
+                for(int j = 0; j < edgeCount; j++){
+                    String cityName = reader.readLine();
                     String destination = reader.readLine();
                     String edgeName = reader.readLine();
                     int weight = Integer.parseInt(reader.readLine());
-                    connectCities(city.getName(), destination, edgeName, weight);
+
+                    if(!citiesGraph.isNeighbor(getCity(cityName), getCity(destination))){
+                        connectCities(cityName, destination, edgeName, weight);
+                    }
                 }
             }
+
 
 
             int placmentCount = Integer.parseInt(reader.readLine());
@@ -113,7 +123,7 @@ public class BackendControl {
                 guiEdges.put(from, to);
             }
 
-            uniqueEdges = guiEdges;
+            uniqueEdges = new HashMap<>(guiEdges);
 
             int pathCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < pathCount; i++){
@@ -148,7 +158,6 @@ public class BackendControl {
 
     public boolean removeCity(String cityName){
         if(!citiesGraph.getCityNames().contains(cityName)){
-            System.out.println(citiesGraph.getCityNames());
             return false;
         }
 
@@ -166,6 +175,7 @@ public class BackendControl {
     public boolean connectCities(String city1, String city2, String rail, int weight){
         try{
             citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
+            System.out.println(citiesGraph.getNodes().size() + " size \n");
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
             System.out.println(e);
             return false;
