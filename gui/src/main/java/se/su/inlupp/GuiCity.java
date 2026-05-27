@@ -24,7 +24,7 @@ public class GuiCity extends BorderPane {
     private final Gui gui;
     private final StackPane node = new StackPane();
 
-    private final Circle circle = new Circle(0, 0, 15);;
+    private final Circle circle = new Circle(0, 0, 25);;
 
     public Button createCity = new Button("Create City");
 
@@ -132,7 +132,7 @@ public class GuiCity extends BorderPane {
         vBox.setAlignment(Pos.CENTER);
         vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
-        visitedCheck.setSelected(gui.getBackend().getCity(cityName).getVisited());
+        visitedCheck.setSelected(gui.getBackend().getCity(cityName.trim()).getVisited());
 
         visitedCheck.setOnAction(event -> {
            gui.getBackend().getCity(cityNameTag.getText()).visit();

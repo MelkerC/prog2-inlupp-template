@@ -1,7 +1,8 @@
 package se.su.inlupp;
 
-public class TrainRail<T> implements Edge<T>{
+import java.util.Arrays;
 
+public class TrainRail<T> implements Edge<T>{
     private final T destination;
     private final String name;
     private int weight;
@@ -37,5 +38,18 @@ public class TrainRail<T> implements Edge<T>{
     @Override
     public String toString(){
         return String.format("till %s med %s tar %d", destination, name, weight);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof TrainRail<?> other)) return false;
+        return name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return name.hashCode();
     }
 }

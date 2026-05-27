@@ -25,23 +25,20 @@ public class BackendControl {
             saveInfo += city.getVisited() + "\n";
         }
 
-        saveInfo += citiesGraph.getAllEdges().size() / 2 + "\n";
+        saveInfo += citiesGraph.getAllEdges().size() + "\n";
 
-        Set<String> seen = new HashSet<>();
+        List<Edge<City>> edgeCount = new ArrayList<>();
 
         for(City city : citiesGraph.getNodes()){
             for(Edge<City> edge : citiesGraph.getEdgesFrom(city)){
 
-                String key = edge.getName();
-
-                if(seen.contains(key)){
-                    continue;
-                }
-                seen.add(key);
+                if(edgeCount.contains(edge)){continue;}
                 saveInfo += city.getName() + "\n";
                 saveInfo += edge.getDestination().getName() + "\n";
                 saveInfo += edge.getName() + "\n";
                 saveInfo += edge.getWeight() + "\n";
+
+                edgeCount.add(edge);
             }
         }
 
@@ -53,12 +50,11 @@ public class BackendControl {
             }else{
                 saveInfo += guiCity + "\n";
             }
-
             saveInfo += guiCityPlacement.get(guiCity) + "\n";
         }
 
         saveInfo += guiEdges.size() + "\n";
-        for(String cityName : guiEdges.keySet()){
+        for(String cityName : guiEdges.values()){
             saveInfo += cityName + "\n";
             saveInfo += guiEdges.get(cityName) + "\n";
         }
@@ -135,7 +131,6 @@ public class BackendControl {
                 int algortithm = Integer.parseInt(reader.readLine());
                 createPath(startCity, endCity, algortithm);
             }
-
             guiCityPlacement.put("Image", reader.readLine());
             reader.close();
 
@@ -151,34 +146,34 @@ public class BackendControl {
     }
 
     public boolean addCity(String cityName){
-        if(citiesGraph.getCityNames().contains(cityName)){
+        if(citiesGraph.getCityNames().contains(cityName.trim())){
             return false;
         }
-        citiesGraph.addCityName(cityName);
-        citiesGraph.add(new City(cityName, false));
+        citiesGraph.addCityName(cityName.trim());
+        citiesGraph.add(new City(cityName.trim(), false));
         return true;
     }
 
     public boolean removeCity(String cityName){
-        if(!citiesGraph.getCityNames().contains(cityName)){
+        if(!citiesGraph.getCityNames().contains(cityName.trim())){
             return false;
         }
 
         for(City c : citiesGraph.getNodes()){
-            if(c.getName().equals(cityName)){
+            if(c.getName().equals(cityName.trim())){
                 citiesGraph.remove(c);
                 break;
             }
         }
 
-        citiesGraph.removeCityName(cityName);
+        citiesGraph.removeCityName(cityName.trim());
         return true;
     }
 
     public boolean connectCities(String city1, String city2, int weight){
         try{
-            String rail = "Rail between " + city1 + " and " + city2;
-            citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
+            String rail = "Rail between " + city1.trim() + " and " + city2.trim();
+            citiesGraph.connect(getCity(city1.trim()), getCity(city2.trim()), rail, weight);
             System.out.println(citiesGraph.getNodes().size() + " size \n");
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException | NullPointerException e){
             System.out.println(e);
@@ -188,22 +183,21 @@ public class BackendControl {
     }
 
     public boolean disConnectCities(String city1, String city2){
-        if(!citiesGraph.getCityNames().contains(city1) || !citiesGraph.getCityNames().contains(city2)){ return false;}
+        if(!citiesGraph.getCityNames().contains(city1.trim()) || !citiesGraph.getCityNames().contains(city2.trim())){ return false;}
         if(!citiesGraph.getNodes().contains(getCity(city1))){return false;}
-        if(!citiesGraph.isNeighbor(getCity(city1), getCity(city2))){return false;}
+        if(!citiesGraph.isNeighbor(getCity(city1.trim()), getCity(city2.trim()))){return false;}
 
         try{
-            citiesGraph.disconnect(getCity(city1), getCity(city2));
+            citiesGraph.disconnect(getCity(city1.trim()), getCity(city2.trim()));
         }catch(NoSuchElementException | IllegalStateException | NullPointerException e){
             e.printStackTrace();
             return false;
         }
-
         return true;
     }
 
     public boolean createPath(String city1, String city2, int algoritihm){
-        GraphPath<City> newPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(city1), getCity(city2));
+        GraphPath<City> newPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(city1.trim()), getCity(city2.trim()));
 
         if(newPath == null){
             return false;
@@ -217,7 +211,7 @@ public class BackendControl {
         pathLibrary.removePath(path.toString());
     }
 
-    public List<String> updateAllPaths(){
+    public void updateAllPaths(){
         List<GraphPath<City>> removedPaths = new ArrayList<>();
         List<String> returnNames = new ArrayList<>();
 
@@ -231,8 +225,6 @@ public class BackendControl {
         for(GraphPath<City> path : removedPaths){
             pathLibrary.removePath(path.toString());
         }
-
-        return returnNames;
     }
 
     public boolean updatePath(GraphPath<City> path, int algoritihm){
@@ -257,7 +249,7 @@ public class BackendControl {
 
     public City getCity(String cityName){
         for(City c : citiesGraph.getNodes()){
-            if(c.getName().equals(cityName)){return c;}
+            if(c.getName().equals(cityName.trim())){return c;}
         }
         return null;
     }
@@ -271,7 +263,7 @@ public class BackendControl {
     }
 
     public Edge<City> getEdgesBetween(String from, String to){
-        return citiesGraph.getEdgeBetween(getCity(from), getCity(to));
+        return citiesGraph.getEdgeBetween(getCity(from.trim()), getCity(to.trim()));
     }
 
     public String getEdgeNameBetween(City city1, City city2){

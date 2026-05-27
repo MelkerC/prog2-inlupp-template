@@ -7,14 +7,14 @@ public class GraphPath<T> implements Path<T>{
     private final List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
 
-    private final String algortithm;
+    private final String algortitm;
 
     private int totalWeight;
 
-    public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges,  String algortithm){
+    public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges,  String algortitm){
         this.pathNodes.addAll(pathNodes);
         this.pathEdges.addAll(pathEdges);
-        this.algortithm = algortithm;
+        this.algortitm = algortitm;
 
         for(Edge<T> edge: pathEdges){
             totalWeight += edge.getWeight();
@@ -46,19 +46,15 @@ public class GraphPath<T> implements Path<T>{
     public List<T> getNodes() {return pathNodes;}
 
     public int getAlgorithmIndex(){
-        return switch (algortithm) {
+        return switch (algortitm) {
             case "BFS" -> 1;
             case "DFS" -> 2;
             default -> 0;
         };
     }
 
-    public String getAlgortithm(){
-        return algortithm;
-    }
-
     @Override
-    public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algortithm);}
+    public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algortitm);}
 
     public String getPathDescription(){
         String pathString = "";

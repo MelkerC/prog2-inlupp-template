@@ -29,8 +29,6 @@ public class DFSPathFinder <T> implements PathFinder<T>{
             newPath.add(edge.getDestination());
         }
 
-        //newPath.addLast(to);
-
         return new GraphPath<>(newPath, path, "DFS");
     }
 

@@ -44,7 +44,7 @@ public class Gui extends Application {
     private final SpawnNode spawnNode = new SpawnNode();
     private final MenuBar menuBar = new MenuBar();
     private final ArrayList<GuiCity> guiCities = new ArrayList<>();
-    private final Map<String, GuiRail> guiRails = new HashMap<>();
+    private final Map<GuiRail, String> guiRails = new HashMap<>();
     private final ArrayList<Control> buttons = new ArrayList<>();
     private final FileChooser fileChooser = new FileChooser();
     private final FileChooser imageChooser = new FileChooser();
@@ -150,6 +150,7 @@ public class Gui extends Application {
       pathLibrary.setOnAction(new PathLibraryButtonHandler());
 
       background = new ImageView(imageBackground);
+      graphArea.getChildren().add(background);
 
       return new Scene(borderPane, 1000, 500);
   }
@@ -235,7 +236,7 @@ public class Gui extends Application {
             guiCityPlacements.put(guiCity.getCityName(), guiCity.getPos());
         }
 
-        for(GuiRail rail : guiRails.values()){
+        for(GuiRail rail : guiRails.keySet()){
             guiEdges.put(rail.getCity1().getCityName(), rail.getCity2().getCityName());
         }
 
@@ -253,7 +254,10 @@ public class Gui extends Application {
           imageChooser.setInitialDirectory(new File("/Users/"));
           File openFile = imageChooser.showOpenDialog(stage);
 
-          imageBackground = new Image(openFile.toURI().toString());
+          if(openFile != null){
+              imageBackground = new Image(openFile.toURI().toString());
+          }
+
 
           background.setImage(imageBackground);
 
@@ -285,7 +289,8 @@ public class Gui extends Application {
 
       graphArea.getChildren().add(1, newRail.getVBox());
       graphArea.getChildren().add(1,  newRail.getLine());
-      guiRails.put(tempName, newRail);
+
+      guiRails.put(newRail, tempName);
   }
 
   private void spawnNodeFromSave(String name, double x, double y) {
@@ -560,7 +565,7 @@ public class Gui extends Application {
                   }
 
                   if(textField3.getText().isEmpty()){
-                      showInformation("Textfield four is empty. Write a distance for the rail.", "Error");
+                      showInformation("Textfield three is empty. Write a distance for the rail.", "Error");
                       return;
                   }
 
@@ -624,10 +629,14 @@ public class Gui extends Application {
   }
 
   private void removeTrainRails(List<String> railsToRemove){
-      for(String guiRail : railsToRemove){
-          graphArea.getChildren().remove(guiRails.get(guiRail).getVBox());
-          graphArea.getChildren().remove(guiRails.get(guiRail).getLine());
-          guiRails.remove(guiRail);
+      for(String guiRailName : railsToRemove){
+          for(GuiRail guiRail : guiRails.keySet()){
+              if(guiRails.get(guiRail).equals(guiRailName)){
+                  graphArea.getChildren().remove(guiRail.getVBox());
+                  graphArea.getChildren().remove(guiRail.getLine());
+                  guiRails.remove(guiRail);
+              }
+          }
       }
   }
 

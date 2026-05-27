@@ -32,8 +32,8 @@ public class GuiRail extends BorderPane {
         railLine.endXProperty().bind(city2.layoutXProperty().add(city2.widthProperty().divide(2)));
         railLine.endYProperty().bind(city2.layoutYProperty().add(city2.heightProperty().divide(2)));
 
-        vbox.layoutYProperty().bind(railLine.startYProperty().add(railLine.endYProperty()).divide(2).subtract(40));
-        vbox.layoutXProperty().bind(railLine.startXProperty().add(railLine.endXProperty()).divide(2).subtract(25));
+        vbox.layoutYProperty().bind(railLine.startYProperty().add(railLine.endYProperty()).divide(2));
+        vbox.layoutXProperty().bind(railLine.startXProperty().add(railLine.endXProperty()).divide(2));
 
         railLine.setStroke(Color.RED);
         railLine.setStrokeWidth(3);
@@ -54,4 +54,19 @@ public class GuiRail extends BorderPane {
     public VBox getVBox() {
         return vbox;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GuiRail)) return false;
+
+        GuiRail other = (GuiRail) o;
+        return railNameTag.getText().equals(other.railNameTag.getText());
+    }
+
+    @Override
+    public int hashCode() {
+        return railNameTag.getText().hashCode();
+    }
+
 }

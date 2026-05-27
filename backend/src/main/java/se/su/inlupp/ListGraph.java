@@ -4,19 +4,26 @@ import java.util.*;
 
 public class ListGraph <T> implements Graph<T>{
 
-    private Map<T, Set<Edge<T>>> graph = new HashMap<>();
-    private Set<String> cityNames = new HashSet<>();
-
-    public Iterator<T> iterator(){
-
-        return graph.keySet().iterator(); //Vänta tills jag förstår bättre
-    }
+    private final Map<T, Set<Edge<T>>> graph = new HashMap<>();
+    private final Set<String> cityNames = new HashSet<>();
 
     @Override
-    public void add(T node) {
-        graph.putIfAbsent(node, new HashSet<>());
-        System.out.println(graph.toString());
-    }
+    public Iterator<T> iterator(){return graph.keySet().iterator();}
+
+    @Override
+    public void add(T node) {graph.putIfAbsent(node, new HashSet<>());}
+
+    @Override
+    public boolean hasNode(T node) {return graph.containsKey(node);}
+
+    @Override
+    public Set<T> getNodes() {return graph.keySet();}
+
+    public void addCityName(String cityName){cityNames.add(cityName);}
+
+    public void removeCityName(String cityName){cityNames.remove(cityName);}
+
+    public String toString(){return graph.toString();}
 
     @Override
     public void remove(T node) {
@@ -28,15 +35,6 @@ public class ListGraph <T> implements Graph<T>{
         }else{
             throw new NoSuchElementException("At least one node is not connected");
         }
-    }
-
-    @Override
-    public boolean hasNode(T node) {return graph.containsKey(node);}
-
-
-    public void connectOnLoad(T node1, T node2, String name, int weight){
-        Set<Edge<T>> edgesNode1 = graph.get(node1);
-        edgesNode1.add(new TrainRail<>(node2, name, weight));
     }
 
     @Override
@@ -78,9 +76,6 @@ public class ListGraph <T> implements Graph<T>{
         }
     }
 
-    @Override
-    public Set<T> getNodes() {return graph.keySet();}
-
     public Set<Edge<T>> getAllEdges(){
         Set<Edge<T>> edges = new HashSet<>();
         for(Set<Edge<T>> set : graph.values()){
@@ -105,27 +100,6 @@ public class ListGraph <T> implements Graph<T>{
             }
         }
         return null;
-
-    }
-
-    public boolean hasPath(T node1, T node2){
-        Set<T> visited = new HashSet<>();
-
-        if(getEdgesFrom(node1) == null || getEdgesFrom(node2) == null){return false;}
-
-        visit(node1, visited);
-        return visited.contains(node2);
-    }
-
-    private void visit(T current, Set<T> visited){
-        visited.add(current);
-        if(graph.get(current).isEmpty()){return;}
-        for(Edge<T> edge: graph.get(current)){
-            T destination = edge.getDestination();
-            if(!visited.contains(destination)){
-                visit(destination, visited);
-            }
-        }
     }
 
     public Set<String> getCityNames(){
@@ -144,12 +118,6 @@ public class ListGraph <T> implements Graph<T>{
         }
         return false;
     }
-
-    public void addCityName(String cityName){cityNames.add(cityName);}
-
-    public void removeCityName(String cityName){cityNames.remove(cityName);}
-
-    public String toString(){return graph.toString();}
 
     public void restart(){
         graph.clear();

@@ -35,5 +35,4 @@ public class City {
     public int hashCode() {
         return name.hashCode();
     }
-
 }
