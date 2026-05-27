@@ -149,18 +149,22 @@ public class Gui extends Application {
   }
 
   public void saveAndExit(Event e) {
-      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-      alert.setTitle("Save and Exit");
-      alert.setHeaderText("You are about to exit without saving. Any unsaved data will get lost :(");
-      alert.setContentText("Are you sure?");
-      Optional<ButtonType> okButton = alert.showAndWait();
-
-      if(okButton.get().equals(ButtonType.OK)){
+      if(cantSave.getValue()) {
           exit();
-      }
+      }else{
+          Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+          alert.setTitle("Save and Exit");
+          alert.setHeaderText("You are about to exit without saving. Any unsaved data will get lost :(");
+          alert.setContentText("Are you sure?");
+          Optional<ButtonType> okButton = alert.showAndWait();
 
-      if(okButton.get().equals(ButtonType.CANCEL)){
-          e.consume();
+          if(okButton.get().equals(ButtonType.OK)){
+              exit();
+          }
+
+          if(okButton.get().equals(ButtonType.CANCEL)){
+              e.consume();
+          }
       }
   }
 
