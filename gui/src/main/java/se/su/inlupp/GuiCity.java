@@ -24,7 +24,7 @@ public class GuiCity extends BorderPane {
     private final Gui gui;
     private final StackPane node = new StackPane();
 
-    private final Circle circle = new Circle(0, 0, 25);;
+    private final Circle circle = new Circle(0, 0, 15);;
 
     public Button createCity = new Button("Create City");
 

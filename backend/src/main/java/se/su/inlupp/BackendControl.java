@@ -213,10 +213,6 @@ public class BackendControl {
         return true;
     }
 
-    public boolean hasNode(String cityName){
-        return citiesGraph.getNodes().contains(getCity(cityName));
-    }
-
     public void removePath(GraphPath<City> path){
         pathLibrary.removePath(path.toString());
     }
@@ -257,15 +253,6 @@ public class BackendControl {
         pathLibrary.removePath(path.toString());
         pathLibrary.addPath(updatedPath.toString(), updatedPath);
         return true;
-    }
-
-    public List<String> getEdgesFrom(String cityName){
-        Collection<Edge<City>> temp  = citiesGraph.getEdgesFrom(getCity(cityName));
-        List<String> edgeNames = new ArrayList<>();
-        for(Edge<City> e : temp){
-            edgeNames.add(e.getName());
-        }
-        return edgeNames;
     }
 
     public City getCity(String cityName){
