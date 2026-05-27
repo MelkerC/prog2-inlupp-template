@@ -222,7 +222,9 @@ public class BackendControl {
             }
         }
 
-        for(GraphPath<City> path : removedPaths){
+        List<GraphPath<City>> copy = new ArrayList<>(removedPaths);
+
+        for(GraphPath<City> path : copy){
             pathLibrary.removePath(path.toString());
         }
     }
