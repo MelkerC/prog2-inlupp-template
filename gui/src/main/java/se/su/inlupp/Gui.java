@@ -1,6 +1,7 @@
 package se.su.inlupp;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -62,7 +63,9 @@ public class Gui extends Application {
     private RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
     private RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
     private RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
-    private VBox algorithmsBox = new VBox();
+    private final VBox algorithmsBox = new VBox();
+
+    private final SimpleBooleanProperty cantSave = new SimpleBooleanProperty(true);
 
     private String currantBackgroundName;
     private Image imageBackground;
@@ -102,6 +105,7 @@ public class Gui extends Application {
       MenuItem open = new MenuItem("Open");
       open.setOnAction(new OpenHandler());
       MenuItem save = new MenuItem("Save");
+      save.disableProperty().bind(cantSave);
       save.setOnAction(new SaveHandler());
       MenuItem exit = new MenuItem("Exit");
       exit.setOnAction(this::saveAndExit);
@@ -167,11 +171,14 @@ public class Gui extends Application {
         File openFile = fileChooser.showOpenDialog(stage);
 
         Map<String, String> spawnCities = backendControl.loadProgram(openFile);
+
         graphArea.getChildren().clear();
+        guiCities.clear();
+        guiRails.clear();
 
         for(String cityName : spawnCities.keySet()){
-            if(spawnCities.equals("Image")){
-
+            if(cityName.equals("Image")){
+                currantBackgroundName = spawnCities.get(cityName);
             }else{
                 String[] spawnPos = spawnCities.get(cityName).split("\\s+");
                 if(cityName.contains("undeclared")){
@@ -187,14 +194,26 @@ public class Gui extends Application {
         Map<String, String> edges = backendControl.getUniqueEdges();
         for(String from : edges.keySet()){
             Edge<City> edge = backendControl.getEdgesBetween(from, edges.get(from));
-            if(edge != null){
-                continue;
-            }
             String name = edge.getName();
             String to = edges.get(from);
             int weight = backendControl.getEdgesBetween(from, edges.get(from)).getWeight();
 
             createRail(getGuiCity(from), getGuiCity(to), name, weight);
+        }
+
+        if(!currantBackgroundName.isEmpty()){
+            File file = new File("src/main/resources/" + currantBackgroundName);
+
+            if(file.exists()){
+                background.setImage(new Image(file.toURI().toString()));
+
+                background.setPreserveRatio(true);
+                background.fitWidthProperty().bind(graphArea.widthProperty());
+                background.fitHeightProperty().bind(graphArea.heightProperty());
+
+                graphArea.getChildren().remove(background);
+                graphArea.getChildren().addFirst(background);
+            }
         }
     }
   }
@@ -227,6 +246,7 @@ public class Gui extends Application {
         File saveFile = fileChooser.showSaveDialog(stage);
 
         backendControl.saveProgram(saveFile, guiCityPlacements, guiEdges, currantBackgroundName);
+        cantSave.set(true);
     }
   }
 
@@ -260,8 +280,8 @@ public class Gui extends Application {
 
 
           graphArea.getChildren().remove(background);
-
           graphArea.getChildren().addFirst(background);
+          changeDetected();
       }
   }
 
@@ -304,6 +324,7 @@ public class Gui extends Application {
           guiCities.add(city);
           graphArea.getChildren().add(city);
           graphArea.setOnMouseClicked(null);
+          changeDetected();
           closeStage(null);
       }
   }
@@ -487,6 +508,7 @@ public class Gui extends Application {
               case "Delete Path":
                   backendControl.removePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()));
                   pathList.setAll(backendControl.getPaths());
+                  changeDetected();
                   break;
           }
       }
@@ -613,19 +635,15 @@ public class Gui extends Application {
                   break;
 
               case "Disconnect":
-
-                  if(backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText())) == null) {
-                      showInformation("Cities not connected.", "Error");
-                      return;
-                  }
-                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText()));
                   if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
                       showInformation("You need to fill in the textfields.", "Error");
                       return;
                   }
                   if(!backendControl.disConnectCities(textfield1.getText(), textfield2.getText())){
-                      showInformation("Error", "Error");
+                      showInformation("Cant disconnect those cities", "Error");
+                      return;
                   }
+                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText()));
                   removeTrainRails(List.of(tempRail));
 
                   backendControl.updateAllPaths();
@@ -657,12 +675,12 @@ public class Gui extends Application {
 
 
           }
+          changeDetected();
           closeStage(stage);
       }
   }
 
   private void removeTrainRails(List<String> railsToRemove){
-
       for(String guiRail : railsToRemove){
           graphArea.getChildren().remove(guiRails.get(guiRail).getVBox());
           graphArea.getChildren().remove(guiRails.get(guiRail).getLine());
@@ -684,6 +702,10 @@ public class Gui extends Application {
               alert.showAndWait();
           }
       }
+  }
+
+  public void changeDetected(){
+      cantSave.set(false);
   }
 
   public BackendControl getBackend(){

@@ -24,8 +24,8 @@ public class PathLibrary <T>{
         paths.remove(pathName);
     }
 
-    public void removePathsWithNode(T node){
-        //Om jag har tid gör jag en metod som updaterar specifikt alla paths som innehåller noden
+    public void resetPaths(){
+        paths.clear();
     }
 
     public void updateAllPaths(ListGraph<T> graph){

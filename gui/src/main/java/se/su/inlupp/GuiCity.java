@@ -43,8 +43,6 @@ public class GuiCity extends BorderPane {
         this.gui = gui;
         gui.addButton(createCity);
 
-        //visitedCheck.setSelected(gui.getBackend().getCity(cityName.getText()).getVisited());
-
         circle.setFill(Color.GRAY);
 
         node.getChildren().addAll(circle, createCity);
@@ -62,7 +60,6 @@ public class GuiCity extends BorderPane {
             circle.setFill(Color.ORANGE);
             requestFocus();
         });
-
 
         focusedProperty().addListener((obs, oldValue, newValue) -> {
             if(newValue){
@@ -95,6 +92,7 @@ public class GuiCity extends BorderPane {
             double newY = getLayoutY() + mouseEvent.getY() - startY;
 
             relocate(newX, newY);
+            gui.changeDetected();
         }
     }
 
@@ -116,6 +114,7 @@ public class GuiCity extends BorderPane {
             }
             keyEvent.consume();
             relocate(x, y);
+            gui.changeDetected();
         }
     }
 
@@ -133,11 +132,15 @@ public class GuiCity extends BorderPane {
         vBox.setAlignment(Pos.CENTER);
         vBox.getChildren().addAll(cityNameTag, visitedCheck);
 
+        visitedCheck.setSelected(gui.getBackend().getCity(cityName).getVisited());
+
         visitedCheck.setOnAction(event -> {
            gui.getBackend().getCity(cityNameTag.getText()).visit();
+            gui.changeDetected();
         });
 
         node.getChildren().addAll(circle, vBox);
+        gui.changeDetected();
         closePopup(popUpWindow);
     }
 

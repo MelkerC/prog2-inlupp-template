@@ -85,6 +85,7 @@ public class BackendControl {
     public Map<String, String> loadProgram(File saveFile) {
         citiesGraph.restart();
         uniqueEdges.clear();
+        pathLibrary.resetPaths();
         Map<String, String> guiCityPlacement = new HashMap<>();
         Map<String, String> guiEdges = new HashMap<>();
 
@@ -187,9 +188,14 @@ public class BackendControl {
     }
 
     public boolean disConnectCities(String city1, String city2){
+        if(!citiesGraph.getCityNames().contains(city1) || !citiesGraph.getCityNames().contains(city2)){ return false;}
+        if(!citiesGraph.getNodes().contains(getCity(city1))){return false;}
+        if(!citiesGraph.isNeighbor(getCity(city1), getCity(city2))){return false;}
+
         try{
             citiesGraph.disconnect(getCity(city1), getCity(city2));
-        }catch(NoSuchElementException | IllegalStateException e){
+        }catch(NoSuchElementException | IllegalStateException | NullPointerException e){
+            e.printStackTrace();
             return false;
         }
 
@@ -223,7 +229,6 @@ public class BackendControl {
             if(!updatePath(path, path.getAlgorithmIndex())){
                 removedPaths.add(path);
                 returnNames.add(path.toString());
-
             }
         }
 
