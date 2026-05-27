@@ -42,7 +42,9 @@ public class ListGraph <T> implements Graph<T>{
     @Override
     public void connect(T node1, T node2, String name, int weight) {
 
+        if(node1 == null || node2 == null || name == null){throw new NullPointerException();}
         if(!hasNode(node1) || !hasNode(node2)){ throw new NoSuchElementException();}
+        if(node1.equals(node2)){throw new NoSuchElementException();}
         if(isNeighbor(node1, node2)){ throw new IllegalStateException();}
         if(weight < 0){throw new IllegalArgumentException();}
 
@@ -95,7 +97,6 @@ public class ListGraph <T> implements Graph<T>{
 
     @Override
     public Edge<T> getEdgeBetween(T node1, T node2) {
-        //if(!isNeighbor(node1, node2)){throw new NoSuchElementException();}
         if(!hasNode(node1) || !hasNode(node2)){throw new NoSuchElementException();}
 
         for(Edge<T> edge: graph.get(node1)){

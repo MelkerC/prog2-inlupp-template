@@ -107,7 +107,7 @@ public class BackendControl {
                 String edgeName = reader.readLine();
                 int weight = Integer.parseInt(reader.readLine());
 
-                connectCities(cityName, destination, edgeName, weight);
+                connectCities(cityName, destination, weight);
             }
 
             int placmentCount = Integer.parseInt(reader.readLine());
@@ -127,7 +127,6 @@ public class BackendControl {
             }
 
             uniqueEdges = new HashMap<>(guiEdges);
-            System.out.println(uniqueEdges + " uniquueeeee");
 
             int pathCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < pathCount; i++){
@@ -176,11 +175,12 @@ public class BackendControl {
         return true;
     }
 
-    public boolean connectCities(String city1, String city2, String rail, int weight){
+    public boolean connectCities(String city1, String city2, int weight){
         try{
+            String rail = "Rail between " + city1 + " and " + city2;
             citiesGraph.connect(getCity(city1), getCity(city2), rail, weight);
             System.out.println(citiesGraph.getNodes().size() + " size \n");
-        }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException e){
+        }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException | NullPointerException e){
             System.out.println(e);
             return false;
         }

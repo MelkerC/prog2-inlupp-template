@@ -39,34 +39,37 @@ import static javafx.application.Platform.exit;
 
 
 public class Gui extends Application {
+    //Controllers
     private final BackendControl backendControl = new BackendControl();
     private final SpawnNode spawnNode = new SpawnNode();
     private final MenuBar menuBar = new MenuBar();
     private final ArrayList<GuiCity> guiCities = new ArrayList<>();
-    private final Map<String, GuiRail> guiRails = new HashMap();
+    private final Map<String, GuiRail> guiRails = new HashMap<>();
     private final ArrayList<Control> buttons = new ArrayList<>();
     private final FileChooser fileChooser = new FileChooser();
     private final FileChooser imageChooser = new FileChooser();
     private final ToggleGroup algorithm = new ToggleGroup();
 
+    //Observable
+    private final SimpleBooleanProperty cantSave = new SimpleBooleanProperty(true);
     private ObservableList<String> pathList;
 
+    //Graphics
     private HBox buttonBox;
     private Pane graphArea;
-    private BorderPane borderPane;
     private Stage stage, pathLibraryStage;
-    private TextField textfield1 = new TextField();
-    private TextField textfield2 = new TextField();
-    private TextField textfield3 = new TextField();
-    private Button addCity, screenShotButton, removeCity, disconnectButton;
+    private TextField textField1 = new TextField();
+    private TextField textField2 = new TextField();
+    private TextField textField3 = new TextField();
     private ListView<String> listView;
-    private RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
-    private RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
-    private RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
+
+    //Radio boxes algorithm
+    private final RadioButton dijkstra = new RadioButton("Find shortest path by distance (Dijkstra)");
+    private final RadioButton bfs = new RadioButton("Find shortest path by city count (BFS)");
+    private final RadioButton dfs = new RadioButton("Find shortest path by city count (DFS)");
     private final VBox algorithmsBox = new VBox();
 
-    private final SimpleBooleanProperty cantSave = new SimpleBooleanProperty(true);
-
+    //Background image
     private String currantBackgroundName;
     private Image imageBackground;
     private ImageView background;
@@ -83,19 +86,19 @@ public class Gui extends Application {
       algorithm.getToggles().addAll(dijkstra, bfs, dfs);
       algorithmsBox.getChildren().addAll(dijkstra, bfs, dfs);
       algorithmsBox.setSpacing(10);
+      algorithm.selectToggle(dijkstra);
   }
 
   public Scene buildTrainScene(Stage stage) {
       this.stage = stage;
-
       this.stage.setOnCloseRequest(this::saveAndExit);
 
       fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-
       buttons.add(menuBar);
+
       //Paneler
       graphArea = new Pane();
-      borderPane = new BorderPane();
+      BorderPane borderPane = new BorderPane();
       HBox lowerScreenMenu = new HBox();
       HBox upperScreenMenu = new HBox();
       Menu menu = new Menu("Menu");
@@ -112,10 +115,14 @@ public class Gui extends Application {
       menu.getItems().addAll(open, save, exit);
 
       //Buttons
-      addCity = new Button("Add City");buttons.add(addCity);
-      removeCity = new Button("Remove City");buttons.add(removeCity);
-      screenShotButton = new Button("Save Screenshot");buttons.add(screenShotButton);
-      disconnectButton = new Button("Disconnect");buttons.add(disconnectButton);
+      Button addCity = new Button("Add City");
+      buttons.add(addCity);
+      Button removeCity = new Button("Remove City");
+      buttons.add(removeCity);
+      Button screenShotButton = new Button("Save Screenshot");
+      buttons.add(screenShotButton);
+      Button disconnectButton = new Button("Disconnect");
+      buttons.add(disconnectButton);
       Button changeBackground = new Button("Change Background");buttons.add(changeBackground);
       Button pathLibrary = new Button("Path Library");buttons.add(pathLibrary);
       Button linkCities = new Button("Link Cities");buttons.add(linkCities);
@@ -129,7 +136,6 @@ public class Gui extends Application {
       upperScreenMenu.getChildren().addAll(menuBar, screenShotButton, changeBackground);
       upperScreenMenu.setSpacing(10);
       upperScreenMenu.setStyle("-fx-background-color: green;");
-
       borderPane.setTop(upperScreenMenu);
       borderPane.setBottom(lowerScreenMenu);
 
@@ -158,13 +164,8 @@ public class Gui extends Application {
           alert.setContentText("Are you sure?");
           Optional<ButtonType> okButton = alert.showAndWait();
 
-          if(okButton.get().equals(ButtonType.OK)){
-              exit();
-          }
-
-          if(okButton.get().equals(ButtonType.CANCEL)){
-              e.consume();
-          }
+          if(okButton.get().equals(ButtonType.OK)){exit();}
+          if(okButton.get().equals(ButtonType.CANCEL)){e.consume();}
       }
   }
 
@@ -222,15 +223,6 @@ public class Gui extends Application {
     }
   }
 
-  private GuiCity getGuiCity(String name){
-      for(GuiCity guiCity : guiCities){
-          if(guiCity.getCityName().equals(name)){
-              return guiCity;
-          }
-      }
-      return null;
-  }
-
   public class SaveHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent actionEvent) {
@@ -281,7 +273,6 @@ public class Gui extends Application {
           background.setPreserveRatio(true);
           background.fitWidthProperty().bind(graphArea.widthProperty());
           background.fitHeightProperty().bind(graphArea.heightProperty());
-
 
           graphArea.getChildren().remove(background);
           graphArea.getChildren().addFirst(background);
@@ -349,9 +340,7 @@ public class Gui extends Application {
             showInformation("No paths have been saved to the library.", "Error");
             return;
         }
-
         openMenu();
-
         pathLibraryStage = new Stage();
 
         buttonBox = new HBox();
@@ -424,7 +413,7 @@ public class Gui extends Application {
           field4.setPromptText("Distance in km");
           field4.setPrefWidth(150);
           textFieldBox.getChildren().add(field4);
-          textfield3 = field4;
+          textField3 = field4;
 
           UnaryOperator<TextFormatter.Change> filter = change -> {
               String text = change.getControlNewText();
@@ -436,7 +425,7 @@ public class Gui extends Application {
 
           TextFormatter<Integer> formatter = new TextFormatter<>(new IntegerStringConverter(),null,filter);
 
-          textfield3.setTextFormatter(formatter);
+          textField3.setTextFormatter(formatter);
 
           flowPane.getChildren().add(1, textFieldBox);
 
@@ -465,30 +454,8 @@ public class Gui extends Application {
           Stage removeCityStage = new Stage();
           FlowPane flowPane = createFlowPane(removeCityStage, new Confirming("RemoveCity", removeCityStage), "Write city to remove");
           TextField removeCity  = new TextField(); removeCity.setPromptText("Enter city name"); removeCity.setPrefWidth(10);
-          flowPane.getChildren().add(1, removeCity); textfield1 = removeCity;
+          flowPane.getChildren().add(1, removeCity); textField1 = removeCity;
           setupWindow(removeCityStage, "Remove City", flowPane,250, 150);
-      }
-  }
-
-  public void addButton(Button button){
-      buttons.add(button);
-  }
-
-  public void removeButton(Button button){
-      buttons.remove(button);
-  }
-
-  public void openMenu(){
-      for(Control button : buttons){
-          button.setDisable(true);
-      }
-  }
-
-  public void closeStage(Stage stage) {
-      if(stage != null){stage.close();}
-
-      for(Control button : buttons){
-          button.setDisable(false);
       }
   }
 
@@ -552,8 +519,8 @@ public class Gui extends Application {
       field1.setPromptText(text1); field2.setPromptText(text2);
       field1.setPrefWidth(75); field2.setPrefWidth(75);
       textFieldBox.getChildren().addAll(field1, field2);
-      textfield1 = field1;
-      textfield2 = field2;
+      textField1 = field1;
+      textField2 = field2;
 
       return textFieldBox;
   }
@@ -570,16 +537,12 @@ public class Gui extends Application {
       public void handle(ActionEvent actionEvent) {
           switch(task){
               case "RemoveCity":
-                  if(textfield1.getText().isEmpty()){
+                  if(textField1.getText().isEmpty()){
                       showInformation("You need to fill in the textfield.", "Error");
                       return;
                   }
 
-                  if(backendControl.hasNode(textfield1.getText())){
-                      removeTrainRails(backendControl.getEdgesFrom(textfield1.getText()));
-                  }
-
-                  if(!backendControl.removeCity(textfield1.getText())){
+                  if(!backendControl.removeCity(textField1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
                   }
@@ -587,7 +550,7 @@ public class Gui extends Application {
                   GuiCity temp = new GuiCity(0,0, Gui.this);
                   for(GuiCity guiCity : guiCities){
                       if(guiCity.getCityName() == null)continue;
-                      if(guiCity.getCityName().equals(textfield1.getText())){temp = guiCity;}
+                      if(guiCity.getCityName().equals(textField1.getText())){temp = guiCity;}
                   }
 
                   temp.removeCity();
@@ -596,28 +559,19 @@ public class Gui extends Application {
                   break;
 
               case "LinkCities":
-                  if(textfield1.getText().isEmpty()){
+
+                  if(textField1.getText().isEmpty() || textField2.getText().isEmpty()){
                       showInformation("Textfield one is empty. Write a city to connect.", "Error");
                       return;
                   }
-                  if(textfield2.getText().isEmpty()){
-                      showInformation("Textfield two is empty. Write a city to connect.", "Error");
-                      return;
-                  }
 
-                  String tempName = "Rail between " + textfield1.getText() + " and " + textfield2.getText();
-
-                  if(textfield3.getText().isEmpty()){
+                  if(textField3.getText().isEmpty()){
                       showInformation("Textfield four is empty. Write a distance for the rail.", "Error");
                       return;
                   }
 
-                  if(textfield1.getText().equals(textfield2.getText())){
-                      showInformation("You can only connect two diffrent cities.", "Error");
-                      return;
-                  }
-
-                  if(!backendControl.connectCities(textfield1.getText(), textfield2.getText(), tempName, parseInt(textfield3.getText()))){
+                  int weight = parseInt(textField3.getText());
+                  if(!backendControl.connectCities(textField1.getText(), textField2.getText(), weight)){
                       showInformation("The cities could not be connected. Either the cities do not exist or they are already connected.", "Error");
                       return;
                   }
@@ -627,44 +581,37 @@ public class Gui extends Application {
 
                   for(GuiCity guiCity : guiCities){
                       if(guiCity.getCityName() == null)continue;
-                      if(guiCity.getCityName().equals(textfield1.getText())){temp1 = guiCity;}
-                      if(guiCity.getCityName().equals(textfield2.getText())){temp2 = guiCity;}
+                      if(guiCity.getCityName().equals(textField1.getText())){temp1 = guiCity;}
+                      if(guiCity.getCityName().equals(textField2.getText())){temp2 = guiCity;}
                   }
 
-                  int weight = parseInt(textfield3.getText());
-
-                  createRail(temp1, temp2, tempName, weight);
+                  String tempName = backendControl.getEdgeNameBetween(backendControl.getCity(textField1.getText()), backendControl.getCity(textField2.getText()));
+                  createRail(temp1, temp2, tempName,weight);
 
                   backendControl.updateAllPaths();
                   break;
 
               case "Disconnect":
-                  if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
+                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textField1.getText()), backendControl.getCity(textField2.getText()));
+                  if(textField1.getText().isEmpty() || textField2.getText().isEmpty()){
                       showInformation("You need to fill in the textfields.", "Error");
                       return;
                   }
-                  if(!backendControl.disConnectCities(textfield1.getText(), textfield2.getText())){
+                  if(!backendControl.disConnectCities(textField1.getText(), textField2.getText())){
                       showInformation("Cant disconnect those cities", "Error");
                       return;
                   }
-                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textfield1.getText()), backendControl.getCity(textfield2.getText()));
                   removeTrainRails(List.of(tempRail));
-
                   backendControl.updateAllPaths();
-
                   break;
 
               case "CreatePath":
-                  if(textfield1.getText().isEmpty() || textfield2.getText().isEmpty()){
+                  if(textField1.getText().isEmpty() || textField2.getText().isEmpty()){
                       showInformation("You need to fill in the textfields.", "Error");
                       return;
                   }
-                  if(algorithm.getSelectedToggle() == null){
-                      showInformation("You need to select an algorithm.", "Error");
-                      return;
-                  }
 
-                  if(!backendControl.createPath(textfield1.getText(), textfield2.getText(), (int)algorithm.getSelectedToggle().getUserData())){
+                  if(!backendControl.createPath(textField1.getText(), textField2.getText(), (int)algorithm.getSelectedToggle().getUserData())){
                       showInformation("The path could not be created.", "Error");
                   }
                   String pathString = backendControl.getPathByName(backendControl.getPaths().getLast()).getPathDescription();
@@ -676,8 +623,6 @@ public class Gui extends Application {
                   backendControl.updatePath(backendControl.getPathByName(listView.getSelectionModel().getSelectedItem()), (int)algorithm.getSelectedToggle().getUserData());
                   pathList.setAll(backendControl.getPaths());
                   break;
-
-
           }
           changeDetected();
           closeStage(stage);
@@ -690,7 +635,6 @@ public class Gui extends Application {
           graphArea.getChildren().remove(guiRails.get(guiRail).getLine());
           guiRails.remove(guiRail);
       }
-
   }
 
   public class SaveScreenShotButtonHandler implements EventHandler<ActionEvent> {
@@ -706,6 +650,36 @@ public class Gui extends Application {
               alert.showAndWait();
           }
       }
+  }
+
+  private GuiCity getGuiCity(String name){
+      for(GuiCity guiCity : guiCities){
+          if(guiCity.getCityName().equals(name)){
+              return guiCity;
+          }
+      }
+      return null;
+  }
+
+  public void closeStage(Stage stage) {
+      if(stage != null){stage.close();}
+      for(Control button : buttons){
+          button.setDisable(false);
+      }
+  }
+
+  public void addButton(Button button){
+        buttons.add(button);
+  }
+
+  public void removeButton(Button button){
+        buttons.remove(button);
+  }
+
+  public void openMenu(){
+    for(Control button : buttons){
+        button.setDisable(true);
+    }
   }
 
   public void changeDetected(){
