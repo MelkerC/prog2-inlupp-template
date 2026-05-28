@@ -182,6 +182,7 @@ public class Gui extends Application {
         graphArea.getChildren().clear();
         guiCities.clear();
         guiRails.clear();
+        graphArea.getChildren().addFirst(background);
 
         for(String cityName : spawnCities.keySet()){
             if(cityName.equals("Image")){
@@ -235,7 +236,6 @@ public class Gui extends Application {
         fileChooser.setInitialDirectory(new File("/Users/"));
 
         Map<String, String> guiCityPlacements = new HashMap<>();
-        //Map<String, String> guiEdges = new HashMap<>();
         List<String> guiEdges = new ArrayList<>();
 
         for(GuiCity guiCity : guiCities){
@@ -309,7 +309,7 @@ public class Gui extends Application {
   private void spawnNodeFromSave(String name, double x, double y) {
       GuiCity city = new GuiCity(x, y, Gui.this);
       guiCities.add(city);
-      graphArea.getChildren().add(city);
+      graphArea.getChildren().addLast(city);
       city.createCityNode(name);
       closeStage(null);
   }
@@ -317,7 +317,7 @@ public class Gui extends Application {
   private void spawnUndeclaredNode(double x, double y) {
       GuiCity city = new GuiCity(x, y, Gui.this);
       guiCities.add(city);
-      graphArea.getChildren().add(city);
+      graphArea.getChildren().addLast(city);
   }
 
   public class SpawnNode implements EventHandler<MouseEvent> {
@@ -329,7 +329,7 @@ public class Gui extends Application {
           GuiCity city = new GuiCity(x, y, Gui.this);
 
           guiCities.add(city);
-          graphArea.getChildren().add(city);
+          graphArea.getChildren().addLast(city);
           graphArea.setOnMouseClicked(null);
           changeDetected();
           closeStage(null);
