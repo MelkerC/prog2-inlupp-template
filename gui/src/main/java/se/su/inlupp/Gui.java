@@ -271,7 +271,6 @@ public class Gui extends Application {
               imageBackground = new Image(openFile.toURI().toString());
           }
 
-
           background.setImage(imageBackground);
 
           currantBackgroundName = "Image_" + System.currentTimeMillis() + ".png";
@@ -555,6 +554,12 @@ public class Gui extends Application {
                       return;
                   }
 
+                  ArrayList<String> tempRails = new ArrayList<>();
+                  try{
+                      tempRails = backendControl.getEdgeNamesFrom(textField1.getText());
+                  }catch(NoSuchElementException e){
+                      return;
+                  }
                   if(!backendControl.removeCity(textField1.getText())){
                       showInformation("That city does not exist.", "Error");
                       return;
@@ -566,6 +571,7 @@ public class Gui extends Application {
                       if(guiCity.getCityName().equals(textField1.getText())){temp = guiCity;}
                   }
 
+                  removeTrainRails(tempRails);
                   temp.removeCity();
                   guiCities.remove(temp);
                   backendControl.updateAllPaths();
@@ -605,11 +611,19 @@ public class Gui extends Application {
                   break;
 
               case "Disconnect":
-                  String tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textField1.getText()), backendControl.getCity(textField2.getText()));
+
+                  String tempRail;
                   if(textField1.getText().isEmpty() || textField2.getText().isEmpty()){
                       showInformation("You need to fill in the textfields.", "Error");
                       return;
                   }
+                  try{
+                      tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textField1.getText()), backendControl.getCity(textField2.getText()));
+                  }catch(NullPointerException | NoSuchElementException e){
+                      showInformation("Cities not found", "Error");
+                      return;
+                  }
+
                   if(!backendControl.disConnectCities(textField1.getText(), textField2.getText())){
                       showInformation("Cant disconnect those cities", "Error");
                       return;
@@ -626,6 +640,7 @@ public class Gui extends Application {
 
                   if(!backendControl.createPath(textField1.getText(), textField2.getText(), (int)algorithm.getSelectedToggle().getUserData())){
                       showInformation("The path could not be created.", "Error");
+                      return;
                   }
                   String pathString = backendControl.getPathByName(backendControl.getPaths().getLast()).getPathDescription();
 
@@ -643,9 +658,11 @@ public class Gui extends Application {
   }
 
   private void removeTrainRails(List<String> railsToRemove){
+
+      Map<GuiRail, String> tempGuiRails = new HashMap<>(guiRails);
       for(String guiRailName : railsToRemove){
-          for(GuiRail guiRail : guiRails.keySet()){
-              if(guiRails.get(guiRail).equals(guiRailName)){
+          for(GuiRail guiRail : tempGuiRails.keySet()){
+              if(tempGuiRails.get(guiRail).equals(guiRailName)){
                   graphArea.getChildren().remove(guiRail.getVBox());
                   graphArea.getChildren().remove(guiRail.getLine());
                   guiRails.remove(guiRail);

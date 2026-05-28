@@ -191,14 +191,19 @@ public class BackendControl {
         try{
             citiesGraph.disconnect(getCity(city1.trim()), getCity(city2.trim()));
         }catch(NoSuchElementException | IllegalStateException | NullPointerException e){
-            e.printStackTrace();
+
             return false;
         }
         return true;
     }
 
     public boolean createPath(String city1, String city2, int algoritihm){
-        GraphPath<City> newPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(city1.trim()), getCity(city2.trim()));
+        GraphPath<City> newPath;
+        try{
+            newPath = (GraphPath<City>) pathFinders.get(algoritihm).findPath(citiesGraph, getCity(city1.trim()), getCity(city2.trim()));
+        }catch(NoSuchElementException | IllegalStateException | NullPointerException e){
+            return false;
+        }
 
         if(newPath == null){
             return false;
@@ -271,5 +276,13 @@ public class BackendControl {
 
     public String getEdgeNameBetween(City city1, City city2){
         return citiesGraph.getEdgeBetween(city1, city2).getName();
+    }
+
+    public ArrayList<String> getEdgeNamesFrom(String from){
+        ArrayList<String> names = new ArrayList<>();
+        for(Edge<City> e : citiesGraph.getEdgesFrom(getCity(from.trim()))){
+            names.add(e.getName());
+        }
+        return names;
     }
 }
