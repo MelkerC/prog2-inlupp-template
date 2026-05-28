@@ -219,12 +219,11 @@ public class BackendControl {
 
     public void updateAllPaths(){
         List<GraphPath<City>> removedPaths = new ArrayList<>();
-        List<String> returnNames = new ArrayList<>();
+        Map<String, GraphPath<City>> tempPaths = new HashMap<>(pathLibrary.getAllPaths());
 
-        for(GraphPath<City> path : pathLibrary.getAllPaths().values()){
+        for(GraphPath<City> path : tempPaths.values()){
             if(!updatePath(path, path.getAlgorithmIndex())){
                 removedPaths.add(path);
-                returnNames.add(path.toString());
             }
         }
 

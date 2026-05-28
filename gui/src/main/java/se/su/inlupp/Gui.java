@@ -620,7 +620,7 @@ public class Gui extends Application {
                   try{
                       tempRail = backendControl.getEdgeNameBetween(backendControl.getCity(textField1.getText()), backendControl.getCity(textField2.getText()));
                   }catch(NullPointerException | NoSuchElementException e){
-                      showInformation("Cities not found", "Error");
+                      showInformation("Cant disconnect those cities", "Error");
                       return;
                   }
 
