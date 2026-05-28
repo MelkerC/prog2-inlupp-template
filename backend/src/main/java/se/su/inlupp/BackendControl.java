@@ -25,7 +25,6 @@ public class BackendControl {
             saveInfo += city.getVisited() + "\n";
         }
 
-        //saveInfo += citiesGraph.getAllEdges().size() + "\n";
         saveInfo += guiEdges.size() + "\n";
 
         List<Edge<City>> edgeCount = new ArrayList<>();

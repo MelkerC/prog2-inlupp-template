@@ -175,6 +175,7 @@ public class Gui extends Application {
     public void handle(ActionEvent actionEvent) {
         fileChooser.setInitialDirectory(new File("/Users/"));
         File openFile = fileChooser.showOpenDialog(stage);
+        if(openFile == null) return;
 
         Map<String, String> spawnCities = backendControl.loadProgram(openFile);
 
@@ -246,12 +247,16 @@ public class Gui extends Application {
             String temp = rail.getCity1().getCityName() + " " + rail.getCity2().getCityName();
             guiEdges.add(temp);
         }
-        System.out.println(guiEdges);
 
         File saveFile = fileChooser.showSaveDialog(stage);
+        if(saveFile == null) return;
 
-        backendControl.saveProgram(saveFile, guiCityPlacements, guiEdges, currantBackgroundName);
-        cantSave.set(true);
+        try{
+            backendControl.saveProgram(saveFile, guiCityPlacements, guiEdges, currantBackgroundName);
+            cantSave.set(true);
+        }catch(NumberFormatException e){
+            showInformation("That file could not be opned", "Error");
+        }
     }
   }
 
