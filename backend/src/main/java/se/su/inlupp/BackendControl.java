@@ -8,7 +8,7 @@ public class BackendControl {
     //Memory data
     private final ListGraph<City> citiesGraph = new ListGraph<>();
     private final PathLibrary<City> pathLibrary = new PathLibrary<>();
-    private Map<String, String> uniqueEdges = new HashMap<>();
+    private List<String> uniqueEdges = new ArrayList<>();
 
     //Pathfinders
     private final PathFinder<City> pathFinderBFS = new BFSPathFinder<>();
@@ -17,7 +17,7 @@ public class BackendControl {
     private final ArrayList<PathFinder<City>> pathFinders = new ArrayList<>(List.of(pathFinderDijkstra, pathFinderBFS, pathFinderDFS));
 
 
-    public void saveProgram(File saveFile, Map<String, String> guiCityPlacement, Map<String, String> guiEdges, String currantBackgroundName) {
+    public void saveProgram(File saveFile, Map<String, String> guiCityPlacement, List<String> guiEdges, String currantBackgroundName) {
         String saveInfo = citiesGraph.getNodes().size() + "\n";
 
         for(City city : citiesGraph.getNodes()){
@@ -55,9 +55,10 @@ public class BackendControl {
         }
 
         saveInfo += guiEdges.size() + "\n";
-        for(String cityName : guiEdges.keySet()){
-            saveInfo += cityName + "\n";
-            saveInfo += guiEdges.get(cityName) + "\n";
+        for(String cityName : guiEdges){
+            String[] info = cityName.split("\\s+");
+            saveInfo += info[0] + "\n";
+            saveInfo += info[1] + "\n";
         }
 
         saveInfo += pathLibrary.getAllPaths().size() + "\n";
@@ -84,7 +85,7 @@ public class BackendControl {
         uniqueEdges.clear();
         pathLibrary.resetPaths();
         Map<String, String> guiCityPlacement = new HashMap<>();
-        Map<String, String> guiEdges = new HashMap<>();
+        List<String> guiEdges = new ArrayList<>();
 
         try{
             BufferedReader reader = new BufferedReader(new FileReader(saveFile));
@@ -117,13 +118,13 @@ public class BackendControl {
 
             int guiEdgeCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < guiEdgeCount; i++){
-                String from = reader.readLine();
-                String to = reader.readLine();
+                String temp = reader.readLine();
+                temp += " " + reader.readLine();
 
-                guiEdges.put(from, to);
+                guiEdges.add(temp);
             }
 
-            uniqueEdges = new HashMap<>(guiEdges);
+            uniqueEdges = new ArrayList<>(guiEdges);
 
             int pathCount = Integer.parseInt(reader.readLine());
             for(int i = 0; i < pathCount; i++){
@@ -142,7 +143,7 @@ public class BackendControl {
         return guiCityPlacement;
     }
 
-    public Map<String, String> getUniqueEdges(){
+    public List<String> getUniqueEdges(){
         return uniqueEdges;
     }
 

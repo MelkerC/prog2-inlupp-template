@@ -9,13 +9,13 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 public class GuiRail extends BorderPane {
-    private GuiCity  city1;
-    private GuiCity city2;
+    private final GuiCity  city1;
+    private final GuiCity city2;
 
-    private Text railNameTag;
-    private Text railWeightTag;
+    private final Text railNameTag;
+    private final Text railWeightTag;
 
-    private Line railLine = new Line();
+    private final Line railLine = new Line();
     VBox vbox = new VBox();
 
     public GuiRail(GuiCity city1, GuiCity city2, String railNameTag, int railWeightTag){
@@ -66,7 +66,7 @@ public class GuiRail extends BorderPane {
 
     @Override
     public int hashCode() {
-        return railNameTag.getText().hashCode();
+        return railNameTag.getText().hashCode() + city1.hashCode() + city2.hashCode();
     }
 
 }

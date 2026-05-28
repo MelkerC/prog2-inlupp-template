@@ -150,7 +150,7 @@ public class Gui extends Application {
       pathLibrary.setOnAction(new PathLibraryButtonHandler());
 
       background = new ImageView(imageBackground);
-      graphArea.getChildren().add(background);
+      graphArea.getChildren().addFirst(background);
 
       return new Scene(borderPane, 1000, 500);
   }
@@ -197,12 +197,16 @@ public class Gui extends Application {
             }
         }
 
-        Map<String, String> edges = backendControl.getUniqueEdges();
-        for(String from : edges.keySet()){
-            Edge<City> edge = backendControl.getEdgesBetween(from.trim(), edges.get(from.trim()));
+        List<String> edges = backendControl.getUniqueEdges();
+        for(String info : edges){
+            String[] infoSplit = info.split("\\s+");
+            String from = infoSplit[0];
+            String to = infoSplit[1];
+
+            Edge<City> edge = backendControl.getEdgesBetween(from.trim(), to.trim());
             String name = edge.getName();
-            String to = edges.get(from);
-            int weight = backendControl.getEdgesBetween(from, edges.get(from)).getWeight();
+
+            int weight = edge.getWeight();
 
             createRail(getGuiCity(from), getGuiCity(to), name, weight);
         }
@@ -230,15 +234,19 @@ public class Gui extends Application {
         fileChooser.setInitialDirectory(new File("/Users/"));
 
         Map<String, String> guiCityPlacements = new HashMap<>();
-        Map<String, String> guiEdges = new HashMap<>();
+        //Map<String, String> guiEdges = new HashMap<>();
+        List<String> guiEdges = new ArrayList<>();
 
         for(GuiCity guiCity : guiCities){
             guiCityPlacements.put(guiCity.getCityName(), guiCity.getPos());
         }
 
         for(GuiRail rail : guiRails.keySet()){
-            guiEdges.put(rail.getCity1().getCityName(), rail.getCity2().getCityName());
+            //guiEdges.put(rail.getCity1().getCityName(), rail.getCity2().getCityName());
+            String temp = rail.getCity1().getCityName() + " " + rail.getCity2().getCityName();
+            guiEdges.add(temp);
         }
+        System.out.println(guiEdges);
 
         File saveFile = fileChooser.showSaveDialog(stage);
 
@@ -291,6 +299,7 @@ public class Gui extends Application {
       graphArea.getChildren().add(1,  newRail.getLine());
 
       guiRails.put(newRail, tempName);
+      System.out.println(guiRails);
   }
 
   private void spawnNodeFromSave(String name, double x, double y) {
