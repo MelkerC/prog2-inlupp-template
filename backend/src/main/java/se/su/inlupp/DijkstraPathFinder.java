@@ -1,3 +1,7 @@
+// PROG2 VT2026, Inlämningsuppgift, del 1
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 import java.util.*;
@@ -56,7 +60,6 @@ public class DijkstraPathFinder <T> implements PathFinder<T>{
         }
 
         GraphPath<T> newPath = new GraphPath<>(path, edgePath, "Dijkstra");
-        newPath.setWeight(distance.get(to));
 
         return newPath;
     }

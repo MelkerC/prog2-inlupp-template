@@ -1,3 +1,7 @@
+// PROG2 VT2026, Inlämningsuppgift, del 2
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 import java.io.*;
@@ -15,7 +19,6 @@ public class BackendControl {
     private final PathFinder<City> pathFinderDFS = new DFSPathFinder<>();
     private final PathFinder<City> pathFinderDijkstra = new DijkstraPathFinder<>();
     private final ArrayList<PathFinder<City>> pathFinders = new ArrayList<>(List.of(pathFinderDijkstra, pathFinderBFS, pathFinderDFS));
-
 
     public void saveProgram(File saveFile, Map<String, String> guiCityPlacement, List<String> guiEdges, String currantBackgroundName) {
         String saveInfo = citiesGraph.getNodes().size() + "\n";
@@ -75,7 +78,7 @@ public class BackendControl {
             writer.close();
 
         } catch (IOException e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -175,9 +178,7 @@ public class BackendControl {
         try{
             String rail = "Rail between " + city1.trim() + " and " + city2.trim();
             citiesGraph.connect(getCity(city1.trim()), getCity(city2.trim()), rail, weight);
-            System.out.println(citiesGraph.getNodes().size() + " size \n");
         }catch(NoSuchElementException | IllegalStateException | IllegalArgumentException | NullPointerException e){
-            System.out.println(e);
             return false;
         }
         return true;
@@ -191,7 +192,6 @@ public class BackendControl {
         try{
             citiesGraph.disconnect(getCity(city1.trim()), getCity(city2.trim()));
         }catch(NoSuchElementException | IllegalStateException | NullPointerException e){
-
             return false;
         }
         return true;

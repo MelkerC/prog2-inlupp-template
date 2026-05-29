@@ -1,8 +1,11 @@
+// PROG2 VT2026, Inlämningsuppgift, del 2
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -13,18 +16,17 @@ public class GuiRail extends BorderPane {
     private final GuiCity city2;
 
     private final Text railNameTag;
-    private final Text railWeightTag;
-
     private final Line railLine = new Line();
-    VBox vbox = new VBox();
+    private final VBox vbox = new VBox();
 
     public GuiRail(GuiCity city1, GuiCity city2, String railNameTag, int railWeightTag){
         this.city1 = city1;
         this.city2 = city2;
         this.railNameTag = new Text(railNameTag);
-        this.railWeightTag = new Text(railWeightTag + "km");
 
-        vbox.getChildren().addAll(this.railNameTag, this.railWeightTag);
+        Text railWeightTag1 = new Text(railWeightTag + "km");
+
+        vbox.getChildren().addAll(this.railNameTag, railWeightTag1);
         vbox.setAlignment(Pos.CENTER);
 
         railLine.startXProperty().bind(city1.layoutXProperty().add(city1.widthProperty().divide(2)));
@@ -58,9 +60,8 @@ public class GuiRail extends BorderPane {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GuiRail)) return false;
+        if (!(o instanceof GuiRail other)) return false;
 
-        GuiRail other = (GuiRail) o;
         return railNameTag.getText().equals(other.railNameTag.getText());
     }
 
@@ -68,5 +69,4 @@ public class GuiRail extends BorderPane {
     public int hashCode() {
         return railNameTag.getText().hashCode() + city1.hashCode() + city2.hashCode();
     }
-
 }

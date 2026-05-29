@@ -1,12 +1,12 @@
+// PROG2 VT2026, Inlämningsuppgift, del 2
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
-import com.sun.net.httpserver.Request;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -14,7 +14,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -23,19 +22,13 @@ public class GuiCity extends BorderPane {
 
     private final Gui gui;
     private final StackPane node = new StackPane();
-
     private final Circle circle = new Circle(0, 0, 25);;
-
-    public Button createCity = new Button("Create City");
-
-    private double startX, startY;
-
-    private Text cityNameTag;
-
     private final CheckBox visitedCheck = new CheckBox("Visited");
 
+    public Button createCity = new Button("Create City");
+    private double startX, startY;
+    private Text cityNameTag;
     private TextField cityName;
-
     private Stage popUpWindow;
 
     public GuiCity(double x, double y, Gui gui) {
@@ -75,7 +68,7 @@ public class GuiCity extends BorderPane {
         node.getChildren().clear();
     }
 
-    public class StartDragHandler implements EventHandler<MouseEvent> {
+    private class StartDragHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
             requestFocus();
@@ -84,7 +77,7 @@ public class GuiCity extends BorderPane {
         }
     }
 
-    public class DragHandler implements EventHandler<MouseEvent> {
+    private class DragHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
             requestFocus();
@@ -96,7 +89,7 @@ public class GuiCity extends BorderPane {
         }
     }
 
-    public class KeyHandler implements EventHandler<KeyEvent> {
+    private class KeyHandler implements EventHandler<KeyEvent> {
         @Override
         public void handle(KeyEvent keyEvent) {
             double x = getLayoutX();
@@ -135,7 +128,7 @@ public class GuiCity extends BorderPane {
         visitedCheck.setSelected(gui.getBackend().getCity(cityName.trim()).getVisited());
 
         visitedCheck.setOnAction(event -> {
-           gui.getBackend().getCity(cityNameTag.getText()).visit();
+            gui.getBackend().getCity(cityNameTag.getText()).visit();
             gui.changeDetected();
         });
 
@@ -144,12 +137,12 @@ public class GuiCity extends BorderPane {
         closePopup(popUpWindow);
     }
 
-    public void closePopup(Stage popUpWindow) {
+    private void closePopup(Stage popUpWindow) {
         createCity.setDisable(false);
         gui.closeStage(popUpWindow);
     }
 
-    public class Confirming implements EventHandler<ActionEvent> {
+    private class Confirming implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent actionEvent) {
             if(cityName.getText().isEmpty()){
@@ -163,7 +156,7 @@ public class GuiCity extends BorderPane {
         }
     }
 
-    public class CreateCity implements EventHandler<ActionEvent> {
+    private class CreateCity implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent actionEvent) {
             createCity.setDisable(true);
@@ -184,10 +177,6 @@ public class GuiCity extends BorderPane {
 
     public String getPos(){
         return getLayoutX() + " " + getLayoutY();
-    }
-
-    public StackPane getNode() {
-        return node;
     }
 
     public String getCityName(){

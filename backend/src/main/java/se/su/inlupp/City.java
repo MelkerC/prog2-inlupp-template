@@ -1,8 +1,11 @@
+// PROG2 VT2026, Inlämningsuppgift, del 2
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 public class City {
     private final String name;
-
     private boolean visited;
 
     public City(String name,  boolean visited) {
@@ -10,9 +13,7 @@ public class City {
         this.visited = visited;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() {return name;}
 
     public boolean getVisited(){return visited;}
 

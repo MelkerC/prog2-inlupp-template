@@ -1,3 +1,7 @@
+// PROG2 VT2026, Inlämningsuppgift, del 1
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 import java.util.*;
@@ -6,15 +10,14 @@ public class GraphPath<T> implements Path<T>{
 
     private final List<Edge<T>> pathEdges =  new LinkedList<>();
     private final List<T> pathNodes = new LinkedList<>();
-
-    private final String algortitm;
+    private final String algorithm;
 
     private int totalWeight;
 
     public GraphPath(LinkedList<T> pathNodes, LinkedList<Edge<T>> pathEdges,  String algortitm){
         this.pathNodes.addAll(pathNodes);
         this.pathEdges.addAll(pathEdges);
-        this.algortitm = algortitm;
+        this.algorithm = algortitm;
 
         for(Edge<T> edge: pathEdges){
             totalWeight += edge.getWeight();
@@ -35,10 +38,6 @@ public class GraphPath<T> implements Path<T>{
         return totalWeight;
     }
 
-    public void setWeight(int totalWeight){
-        this.totalWeight = totalWeight;
-    }
-
     @Override
     public List<Edge<T>> getEdges() {return pathEdges;}
 
@@ -46,7 +45,7 @@ public class GraphPath<T> implements Path<T>{
     public List<T> getNodes() {return pathNodes;}
 
     public int getAlgorithmIndex(){
-        return switch (algortitm) {
+        return switch (algorithm) {
             case "BFS" -> 1;
             case "DFS" -> 2;
             default -> 0;
@@ -54,7 +53,7 @@ public class GraphPath<T> implements Path<T>{
     }
 
     @Override
-    public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algortitm);}
+    public String toString(){return String.format("%s -> %s, %skm, %s", pathNodes.getFirst(), pathNodes.getLast(), totalWeight, algorithm);}
 
     public String getPathDescription(){
         String pathString = "";

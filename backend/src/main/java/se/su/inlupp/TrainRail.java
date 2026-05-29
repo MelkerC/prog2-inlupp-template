@@ -1,6 +1,8 @@
-package se.su.inlupp;
+// PROG2 VT2026, Inlämningsuppgift, del 2
+// Grupp 070
+// Melker Cronmark mecr7998
 
-import java.util.Arrays;
+package se.su.inlupp;
 
 public class TrainRail<T> implements Edge<T>{
     private final T destination;
@@ -49,7 +51,6 @@ public class TrainRail<T> implements Edge<T>{
 
     @Override
     public int hashCode() {
-
         return name.hashCode();
     }
 }

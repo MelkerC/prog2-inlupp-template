@@ -1,3 +1,7 @@
+// PROG2 VT2026, Inlämningsuppgift, del 1
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
 import java.util.*;
@@ -74,14 +78,6 @@ public class ListGraph <T> implements Graph<T>{
         }else{
             throw new NoSuchElementException("At least node or node is not connected");
         }
-    }
-
-    public Set<Edge<T>> getAllEdges(){
-        Set<Edge<T>> edges = new HashSet<>();
-        for(Set<Edge<T>> set : graph.values()){
-            edges.addAll(set);
-        }
-        return edges;
     }
 
     @Override

@@ -1,26 +1,29 @@
+// PROG2 VT2026, Inlämningsuppgift, del 1
+// Grupp 070
+// Melker Cronmark mecr7998
+
 package se.su.inlupp;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
 public interface Graph<T> extends Iterable<T> {
 
-  void add(T node);
+    void add(T node);
 
-  void remove(T node);
+    void remove(T node);
 
-  boolean hasNode(T node);
+    boolean hasNode(T node);
 
-  void connect(T node1, T node2, String name, int weight);
+    void connect(T node1, T node2, String name, int weight);
 
-  void disconnect(T node1, T node2);
+    void disconnect(T node1, T node2);
 
-  void setConnectionWeight(T node1, T node2, int weight);
+    void setConnectionWeight(T node1, T node2, int weight);
 
-  Set<T> getNodes();
+    Set<T> getNodes();
 
-  Collection<Edge<T>> getEdgesFrom(T node);
+    Collection<Edge<T>> getEdgesFrom(T node);
 
-  Edge<T> getEdgeBetween(T node1, T node2);
+    Edge<T> getEdgeBetween(T node1, T node2);
 }
 
